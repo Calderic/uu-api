@@ -80,9 +80,6 @@ func GetOptions(c *gin.Context) {
 	optionValues := make(map[string]string)
 	common.OptionMapRWMutex.Lock()
 	for k, v := range common.OptionMap {
-		if k == "theme.frontend" {
-			continue
-		}
 		value := common.Interface2String(v)
 		isSensitiveKey := strings.HasSuffix(k, "Token") ||
 			strings.HasSuffix(k, "Secret") ||
@@ -215,14 +212,6 @@ func UpdateOption(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
 				"success": false,
 				"message": "无法启用 Telegram OAuth，请先填入 Telegram Bot Token！",
-			})
-			return
-		}
-	case "theme.frontend":
-		if option.Value != "default" {
-			c.JSON(http.StatusOK, gin.H{
-				"success": false,
-				"message": "Classic 前端已移除，主题只能设置为 default",
 			})
 			return
 		}

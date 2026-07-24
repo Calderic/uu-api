@@ -23,7 +23,6 @@ import { useTranslation } from 'react-i18next'
 import { SectionPageLayout } from '@/components/layout'
 
 import { useSystemOptions, getOptionValue } from '../hooks/use-system-options'
-import type { SystemOption } from '../types'
 import { SettingsPageProvider } from './settings-page-context'
 
 type SettingsPageProps<
@@ -44,10 +43,6 @@ type SettingsPageProps<
   }
   extraArgs?: TExtraArgs
   loadingMessage?: string
-  resolveSettings?: (
-    settings: TSettings,
-    raw: SystemOption[] | undefined
-  ) => TSettings
 }
 
 type SettingsPageFrameProps = {
@@ -108,7 +103,6 @@ export function SettingsPage<
   getSectionMeta,
   extraArgs,
   loadingMessage = 'Loading settings...',
-  resolveSettings,
 }: SettingsPageProps<TSettings, TSectionId, TExtraArgs>) {
   const { t } = useTranslation()
   const { data, isLoading } = useSystemOptions()
@@ -117,15 +111,10 @@ export function SettingsPage<
   const activeSection = (params?.section ?? defaultSection) as TSectionId
   const sectionMeta = getSectionMeta(activeSection)
 
-  const settings = useMemo(() => {
-    const baseSettings = getOptionValue(
-      data?.data,
-      defaultSettings
-    ) as TSettings
-    return resolveSettings
-      ? resolveSettings(baseSettings, data?.data)
-      : baseSettings
-  }, [data?.data, defaultSettings, resolveSettings])
+  const settings = useMemo(
+    () => getOptionValue(data?.data, defaultSettings) as TSettings,
+    [data?.data, defaultSettings]
+  )
 
   if (isLoading) {
     return (
