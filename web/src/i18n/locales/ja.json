@@ -5214,6 +5214,13 @@
     "Zero retention": "データ保持なし",
     "Zhipu": "Zhipu",
     "Zhipu V4": "Zhipu V 4",
-    "Zoom": "ズーム"
+    "Zoom": "ズーム",
+    "AI Gateway": "AI ゲートウェイ",
+    "Copy API endpoint": "API エンドポイントをコピー",
+    "Every model. One gateway. No lock-in.": "すべてのモデルを、1つのゲートウェイで。ロックインなし。",
+    "Global API endpoint": "グローバル API エンドポイント",
+    "One endpoint for every model": "1つのエンドポイントですべてのモデルへ",
+    "One request, fully visible": "1回のリクエストを完全に可視化",
+    "Your Request": "あなたのリクエスト"
   }
 }

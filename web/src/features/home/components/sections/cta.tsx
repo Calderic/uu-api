@@ -16,69 +16,74 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { Link } from '@tanstack/react-router'
-import { ArrowRight } from 'lucide-react'
+import {
+  motion,
+  type MotionValue,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from 'motion/react'
+import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AnimateInView } from '@/components/animate-in-view'
-import { Button } from '@/components/ui/button'
-
-interface CTAProps {
-  className?: string
-  isAuthenticated?: boolean
+interface RevealPhraseProps {
+  children: string
+  progress: MotionValue<number>
+  range: [number, number]
+  reducedMotion: boolean
 }
 
-export function CTA(props: CTAProps) {
-  const { t } = useTranslation()
+function RevealPhrase(props: RevealPhraseProps) {
+  const opacity = useTransform(props.progress, props.range, [0.14, 1])
+  const y = useTransform(props.progress, props.range, [18, 0])
 
-  if (props.isAuthenticated) {
-    return null
+  if (props.reducedMotion) {
+    return <span>{props.children}</span>
   }
 
   return (
-    <section className='relative z-10 overflow-hidden px-6 py-24 md:py-32'>
-      {/* Gradient mesh background */}
-      <div
-        aria-hidden
-        className='absolute inset-0 -z-10 opacity-20 dark:opacity-[0.08]'
-        style={{
-          background: [
-            'radial-gradient(ellipse 50% 50% at 30% 50%, oklch(0.7 0.15 250 / 70%) 0%, transparent 70%)',
-            'radial-gradient(ellipse 40% 40% at 70% 40%, oklch(0.65 0.12 200 / 50%) 0%, transparent 70%)',
-          ].join(', '),
-        }}
-      />
+    <motion.span className='inline-block' style={{ opacity, y }}>
+      {props.children}
+    </motion.span>
+  )
+}
 
-      <AnimateInView
-        className='mx-auto max-w-2xl text-center'
-        animation='scale-in'
-      >
-        <h2 className='text-2xl leading-tight font-bold tracking-tight md:text-4xl'>
-          {t('Ready to simplify')}
-          <br />
-          <span className='bg-gradient-to-r from-blue-400 via-violet-400 to-purple-500 bg-clip-text text-transparent'>
-            {t('your AI integration?')}
-          </span>
-        </h2>
-        <p className='text-muted-foreground/80 mx-auto mt-5 max-w-md text-sm leading-relaxed md:text-base'>
-          {t(
-            'Deploy your own gateway and start routing requests through your configured upstream services.'
-          )}
-        </p>
-        <div className='mt-8 flex items-center justify-center gap-3'>
-          <Button className='group rounded-lg' render={<Link to='/sign-up' />}>
-            {t('Get Started')}
-            <ArrowRight className='ml-1 size-3.5 transition-transform duration-200 group-hover:translate-x-0.5' />
-          </Button>
-          <Button
-            variant='outline'
-            className='border-border/50 hover:border-border hover:bg-muted/50 rounded-lg'
-            render={<Link to='/pricing' />}
-          >
-            {t('View Pricing')}
-          </Button>
-        </div>
-      </AnimateInView>
+export function CTA() {
+  const { t } = useTranslation()
+  const sectionRef = useRef<HTMLElement>(null)
+  const reducedMotion = Boolean(useReducedMotion())
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start 0.9', 'start 0.35'],
+  })
+  const statement = t('Every model. One gateway. No lock-in.')
+  const phrases = statement
+    .split(/(?<=[.!?。！？,，])/u)
+    .map((phrase) => phrase.trim())
+    .filter(Boolean)
+
+  return (
+    <section
+      ref={sectionRef}
+      className='relative z-10 flex min-h-svh items-center bg-[var(--home-canvas)] px-4 py-24 sm:px-6 lg:sticky lg:top-0 lg:px-8'
+    >
+      <h2 className='mx-auto max-w-[62rem] text-center text-[clamp(2.5rem,6.5vw,5.75rem)] leading-[1.08] font-semibold tracking-[-0.035em] text-balance'>
+        {phrases.map((phrase, index) => {
+          const rangeStart = (index / phrases.length) * 0.8
+          return (
+            <span key={phrase}>
+              <RevealPhrase
+                progress={scrollYProgress}
+                range={[rangeStart, Math.min(rangeStart + 0.24, 1)]}
+                reducedMotion={reducedMotion}
+              >
+                {phrase}
+              </RevealPhrase>
+              {index < phrases.length - 1 ? ' ' : null}
+            </span>
+          )
+        })}
+      </h2>
     </section>
   )
 }

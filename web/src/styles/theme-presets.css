@@ -23,8 +23,8 @@ For commercial licensing, please contact support@quantumnous.com
  *   <body data-theme-preset="rose-garden" data-theme-radius="lg" data-theme-scale="sm" />
  *
  * - `data-theme-preset` overrides the color palette defined in ./theme.css and
- *   ships a curated default `--radius` value to match the preset's mood
- *   (e.g. rose-garden uses 1rem, ocean-breeze uses 0.3rem).
+ *   ships a curated default `--radius` value to match the preset's mood.
+ *   Preset radii stay inside the system's restrained 6–10px control range.
  * - Each preset declares both light and dark color values; dark values use
  *   the `.dark` ancestor selector so they apply when html has the `.dark` class.
  * - `data-theme-radius` and `data-theme-scale` adjust visual density
@@ -86,7 +86,7 @@ For commercial licensing, please contact support@quantumnous.com
   --sidebar-accent: oklch(0.5827 0.2418 12.23);
   --sidebar-accent-foreground: oklch(1 0 0);
   --sidebar-ring: oklch(0.5827 0.2418 12.23);
-  --radius: 1rem;
+  --radius: 0.625rem;
 }
 .dark [data-theme-preset='rose-garden'] {
   --primary: oklch(0.6476 0.2348 10.36);
@@ -123,7 +123,7 @@ For commercial licensing, please contact support@quantumnous.com
   --sidebar-accent: oklch(0.765 0.177 163.22);
   --sidebar-accent-foreground: oklch(0.2742 0.0208 165.96);
   --sidebar-ring: oklch(0.765 0.177 163.22);
-  --radius: 0.75rem;
+  --radius: 0.5rem;
 }
 .dark [data-theme-preset='lake-view'] {
   --primary: oklch(0.765 0.177 163.22);
@@ -160,7 +160,7 @@ For commercial licensing, please contact support@quantumnous.com
   --sidebar-accent: oklch(0.5591 0.1882 25.33);
   --sidebar-accent-foreground: oklch(1 0 0);
   --sidebar-ring: oklch(0.5591 0.1882 25.33);
-  --radius: 1rem;
+  --radius: 0.625rem;
 }
 .dark [data-theme-preset='sunset-glow'] {
   --primary: oklch(0.6387 0.1822 23.51);
@@ -234,7 +234,7 @@ For commercial licensing, please contact support@quantumnous.com
   --sidebar-accent: oklch(0.5461 0.2152 262.88);
   --sidebar-accent-foreground: oklch(1 0 0);
   --sidebar-ring: oklch(0.5461 0.2152 262.88);
-  --radius: 0.3rem;
+  --radius: 0.375rem;
 }
 .dark [data-theme-preset='ocean-breeze'] {
   --primary: oklch(0.623 0.188 259.81);
@@ -271,7 +271,7 @@ For commercial licensing, please contact support@quantumnous.com
   --sidebar-accent: oklch(0.5709 0.1808 306.89);
   --sidebar-accent-foreground: oklch(1 0 0);
   --sidebar-ring: oklch(0.5709 0.1808 306.89);
-  --radius: 1rem;
+  --radius: 0.625rem;
 }
 .dark [data-theme-preset='lavender-dream'] {
   --primary: oklch(0.6359 0.1699 307.95);
@@ -683,16 +683,16 @@ For commercial licensing, please contact support@quantumnous.com
   --radius: 0rem;
 }
 [data-theme-radius='sm'] {
-  --radius: 0.3rem;
+  --radius: 0.25rem;
 }
 [data-theme-radius='md'] {
-  --radius: 0.5rem;
+  --radius: 0.375rem;
 }
 [data-theme-radius='lg'] {
-  --radius: 0.75rem;
+  --radius: 0.5rem;
 }
 [data-theme-radius='xl'] {
-  --radius: 1rem;
+  --radius: 0.625rem;
 }
 
 /* ── Density scale ────────────────────────────────────────────────────── */

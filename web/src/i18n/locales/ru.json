@@ -5214,6 +5214,13 @@
     "Zero retention": "Без хранения данных",
     "Zhipu": "Zhipu",
     "Zhipu V4": "Zhipu V4",
-    "Zoom": "Zoom"
+    "Zoom": "Zoom",
+    "AI Gateway": "Шлюз ИИ",
+    "Copy API endpoint": "Копировать конечную точку API",
+    "Every model. One gateway. No lock-in.": "Все модели. Один шлюз. Без привязки.",
+    "Global API endpoint": "Глобальная конечная точка API",
+    "One endpoint for every model": "Одна конечная точка для всех моделей",
+    "One request, fully visible": "Один запрос — полная прозрачность",
+    "Your Request": "Ваш запрос"
   }
 }

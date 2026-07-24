@@ -5214,6 +5214,13 @@
     "Zero retention": "Không lưu dữ liệu",
     "Zhipu": "Zhipu",
     "Zhipu V4": "Zhipu V4",
-    "Zoom": "Zoom"
+    "Zoom": "Zoom",
+    "AI Gateway": "Cổng AI",
+    "Copy API endpoint": "Sao chép điểm cuối API",
+    "Every model. One gateway. No lock-in.": "Mọi mô hình. Một cổng kết nối. Không bị khóa nền tảng.",
+    "Global API endpoint": "Điểm cuối API toàn cầu",
+    "One endpoint for every model": "Một điểm cuối cho mọi mô hình",
+    "One request, fully visible": "Một yêu cầu, hiển thị toàn trình",
+    "Your Request": "Yêu cầu của bạn"
   }
 }

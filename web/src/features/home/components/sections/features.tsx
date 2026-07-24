@@ -17,222 +17,219 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import {
-  Zap,
-  Shield,
-  Globe,
-  Code,
-  Gauge,
-  DollarSign,
-  Users,
-  HeartHandshake,
-} from 'lucide-react'
+  CodeIcon,
+  DollarCircleIcon,
+  FlashIcon,
+  GlobalIcon,
+  Route01Icon,
+  SecurityCheckIcon,
+  UserGroupIcon,
+} from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 import { useTranslation } from 'react-i18next'
 
 import { AnimateInView } from '@/components/animate-in-view'
+import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
 
-interface FeaturesProps {
-  className?: string
-}
+import { homeLayoutClasses } from '../home-layout'
 
-export function Features(_props: FeaturesProps) {
+const MODEL_NAMES = ['OpenAI', 'Claude', 'Gemini', 'DeepSeek', 'Qwen', 'Llama']
+const API_ROUTES = ['/v1/responses', '/v1/messages', '/v1/chat/completions']
+
+export function Features() {
   const { t } = useTranslation()
 
-  const features = [
+  const compactFeatures = [
     {
-      id: 'fast',
-      num: '01',
-      title: t('Lightning Fast'),
-      desc: t(
-        'Optimized network architecture ensures millisecond response times'
-      ),
-      span: 'md:col-span-2',
-      icon: <Zap className='size-4 text-blue-400' />,
-      visual: (
-        <div className='mt-4 grid grid-cols-3 gap-2'>
-          {['OpenAI', 'Claude', 'Gemini', 'DeepSeek', 'Qwen', 'Llama'].map(
-            (name) => (
-              <div
-                key={name}
-                className='border-border/30 bg-muted/20 text-muted-foreground flex items-center justify-center rounded-lg border px-3 py-2 text-xs transition-colors duration-300 hover:border-blue-500/30 hover:bg-blue-500/5'
-              >
-                {name}
-              </div>
-            )
-          )}
-        </div>
-      ),
-    },
-    {
-      id: 'secure',
-      num: '02',
+      icon: SecurityCheckIcon,
       title: t('Secure & Reliable'),
-      desc: t(
+      description: t(
         'Enterprise-grade security with comprehensive permission management'
       ),
-      span: 'md:col-span-1',
-      icon: <Shield className='size-4 text-emerald-400' />,
-      visual: (
-        <div className='mt-4 flex items-center justify-center'>
-          <div className='relative'>
-            <div className='flex size-16 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/5'>
-              <Shield
-                className='size-7 text-emerald-500/70'
-                strokeWidth={1.5}
-              />
-            </div>
-            <div className='absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-emerald-500'>
-              <svg
-                className='size-2.5 text-white'
-                fill='none'
-                viewBox='0 0 24 24'
-                stroke='currentColor'
-                strokeWidth={3}
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  d='m4.5 12.75 6 6 9-13.5'
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-      ),
     },
     {
-      id: 'global',
-      num: '03',
-      title: t('Global Coverage'),
-      desc: t('Multi-region deployment for stable global access'),
-      span: 'md:col-span-1',
-      icon: <Globe className='size-4 text-violet-400' />,
-      visual: (
-        <div className='mt-4 space-y-2'>
-          {[t('Load Balancing'), t('Rate Limiting'), t('Cost Tracking')].map(
-            (step, i) => (
-              <div key={step} className='flex items-center gap-2'>
-                <div
-                  className={`flex size-6 items-center justify-center rounded-full text-[10px] font-bold ${
-                    i === 1
-                      ? 'border border-blue-500/30 bg-blue-500/20 text-blue-500'
-                      : 'border-border/40 bg-muted text-muted-foreground border'
-                  }`}
-                >
-                  {i + 1}
-                </div>
-                <div className='bg-border/40 h-px flex-1' />
-                <span className='text-muted-foreground text-xs'>{step}</span>
-              </div>
-            )
-          )}
-        </div>
-      ),
-    },
-    {
-      id: 'developer',
-      num: '04',
-      title: t('Developer Friendly'),
-      desc: t('Compatible API routes for common AI application workflows'),
-      span: 'md:col-span-2',
-      icon: <Code className='size-4 text-amber-400' />,
-      visual: (
-        <div className='mt-4 flex items-center gap-3'>
-          <div className='flex -space-x-2'>
-            {['API', 'SDK', 'CLI', 'Docs'].map((n) => (
-              <div
-                key={n}
-                className='border-background from-muted to-muted/60 text-muted-foreground flex size-8 items-center justify-center rounded-full border-2 bg-gradient-to-br text-[9px] font-bold'
-              >
-                {n}
-              </div>
-            ))}
-          </div>
-          <div className='text-muted-foreground flex items-center gap-1.5 text-xs'>
-            <Code className='size-3.5 text-blue-500' />
-            {t('Multi-protocol Compatible')}
-          </div>
-        </div>
-      ),
-    },
-  ]
-
-  const additionalFeatures = [
-    {
-      icon: <Gauge className='size-5' strokeWidth={1.5} />,
-      title: t('High Performance'),
-      desc: t('Support for high concurrency with automatic load balancing'),
-    },
-    {
-      icon: <DollarSign className='size-5' strokeWidth={1.5} />,
+      icon: DollarCircleIcon,
       title: t('Transparent Billing'),
-      desc: t('Pay-as-you-go with real-time usage monitoring'),
+      description: t('Pay-as-you-go with real-time usage monitoring'),
     },
     {
-      icon: <Users className='size-5' strokeWidth={1.5} />,
+      icon: GlobalIcon,
+      title: t('Global Coverage'),
+      description: t('Multi-region deployment for stable global access'),
+    },
+    {
+      icon: UserGroupIcon,
       title: t('Team Collaboration'),
-      desc: t('Multi-user management with flexible permission allocation'),
-    },
-    {
-      icon: <HeartHandshake className='size-5' strokeWidth={1.5} />,
-      title: t('Open Source'),
-      desc: t('Community driven, self-hosted, and extensible'),
+      description: t(
+        'Multi-user management with flexible permission allocation'
+      ),
     },
   ]
 
   return (
-    <section className='relative z-10 px-6 py-24 md:py-32'>
-      <div className='mx-auto max-w-6xl'>
-        <AnimateInView className='mb-16 max-w-lg'>
-          <p className='text-muted-foreground mb-3 text-xs font-medium tracking-widest uppercase'>
+    <section className='relative z-20 bg-[var(--home-canvas)] px-4 py-20 sm:px-6 md:py-28 lg:rounded-t-[2.5rem] lg:px-8 lg:shadow-[0_-28px_80px_-36px_var(--home-shadow)]'>
+      <div className='mx-auto max-w-[80rem]'>
+        <AnimateInView className='mb-14 max-w-2xl md:mb-20'>
+          <p className='mb-4 font-mono text-[10px] font-semibold tracking-[0.18em] text-[var(--home-muted)] uppercase'>
             {t('Core Features')}
           </p>
-          <h2 className='text-2xl leading-tight font-bold tracking-tight md:text-3xl'>
+          <h2 className='text-3xl leading-[1.02] font-semibold tracking-[-0.035em] sm:text-4xl md:text-5xl'>
             {t('Built for developers,')}
             <br />
             {t('designed for scale')}
           </h2>
         </AnimateInView>
 
-        {/* Bento grid */}
-        <div className='border-border/40 bg-border/40 grid gap-px overflow-hidden rounded-xl border md:grid-cols-3'>
-          {features.map((f, i) => (
-            <AnimateInView
-              key={f.id}
-              delay={i * 100}
-              animation='scale-in'
-              className={`bg-background group hover:bg-muted/20 p-7 transition-colors duration-300 md:p-8 ${f.span}`}
-            >
-              <div className='mb-3 flex items-center gap-3'>
-                <span className='border-border/40 bg-muted text-muted-foreground flex size-7 items-center justify-center rounded-md border text-[10px] font-semibold tabular-nums'>
-                  {f.num}
-                </span>
-                <h3 className='text-sm font-semibold'>{f.title}</h3>
+        <div className={homeLayoutClasses.featureGrid}>
+          <AnimateInView
+            className='group bg-[var(--home-panel)] p-6 transition-colors hover:bg-[var(--home-panel-hover)] sm:p-8 md:col-span-2 md:min-h-[22rem]'
+            animation='fade-up'
+          >
+            <div className='flex items-start justify-between gap-6'>
+              <div>
+                <div className='mb-5 flex size-9 items-center justify-center border border-[var(--home-line)] bg-[var(--home-tint)] text-[var(--home-accent)]'>
+                  <HugeiconsIcon icon={Route01Icon} strokeWidth={1.7} />
+                </div>
+                <h3 className='text-base font-semibold'>{t('Model Access')}</h3>
+                <p className='mt-2 max-w-xl text-sm leading-relaxed text-[var(--home-muted)]'>
+                  {t(
+                    'Compatible API routes for common AI application workflows'
+                  )}
+                </p>
               </div>
-              <p className='text-muted-foreground text-sm leading-relaxed'>
-                {f.desc}
-              </p>
-              {f.visual}
-            </AnimateInView>
-          ))}
+              <Badge variant='outline'>{t('Multi-protocol Compatible')}</Badge>
+            </div>
+
+            <div className='mt-9 border border-[var(--home-line)] bg-[var(--home-tint)] p-4'>
+              <div className='flex items-center gap-3'>
+                <Badge variant='outline'>{t('Your Request')}</Badge>
+                <div className='h-px flex-1 bg-[var(--home-accent)] opacity-60' />
+              </div>
+              <div className='mt-4 grid grid-cols-2 gap-px bg-[var(--home-line)] sm:grid-cols-3'>
+                {MODEL_NAMES.map((name, index) => (
+                  <div
+                    key={name}
+                    className='bg-[var(--home-panel)] px-3 py-3 text-center font-mono text-[11px] text-[var(--home-muted)] transition-colors group-hover:text-[var(--home-ink)]'
+                  >
+                    <span
+                      aria-hidden='true'
+                      className={cn(
+                        'mr-2 inline-block size-1.5 rounded-full',
+                        index < 3
+                          ? 'bg-[var(--home-accent)]'
+                          : 'bg-[var(--home-muted)]'
+                      )}
+                    />
+                    {name}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </AnimateInView>
+
+          <AnimateInView
+            delay={80}
+            className='bg-[var(--home-panel)] p-6 transition-colors hover:bg-[var(--home-panel-hover)] sm:p-8'
+            animation='fade-up'
+          >
+            <div className='flex size-9 items-center justify-center border border-[var(--home-line)] bg-[var(--home-tint)] text-[var(--home-accent)]'>
+              <HugeiconsIcon icon={FlashIcon} strokeWidth={1.7} />
+            </div>
+            <h3 className='mt-5 text-base font-semibold'>
+              {t('Lightning Fast')}
+            </h3>
+            <p className='mt-2 text-sm leading-relaxed text-[var(--home-muted)]'>
+              {t(
+                'Optimized network architecture ensures millisecond response times'
+              )}
+            </p>
+            <div className='mt-8 flex items-end gap-1.5' aria-hidden='true'>
+              {[34, 52, 41, 70, 58, 86, 74, 94].map((height) => (
+                <div
+                  key={height}
+                  className='flex-1 bg-[var(--home-accent)] opacity-70'
+                  style={{ height: `${height}px` }}
+                />
+              ))}
+            </div>
+          </AnimateInView>
+
+          <AnimateInView
+            delay={120}
+            className='bg-[var(--home-panel)] p-6 transition-colors hover:bg-[var(--home-panel-hover)] sm:p-8'
+            animation='fade-up'
+          >
+            <div className='flex size-9 items-center justify-center border border-[var(--home-line)] bg-[var(--home-tint)] text-[var(--home-accent)]'>
+              <HugeiconsIcon icon={CodeIcon} strokeWidth={1.7} />
+            </div>
+            <h3 className='mt-5 text-base font-semibold'>
+              {t('Developer Friendly')}
+            </h3>
+            <p className='mt-2 text-sm leading-relaxed text-[var(--home-muted)]'>
+              {t('One API')}
+            </p>
+            <div className='mt-7 flex flex-col gap-2'>
+              {API_ROUTES.map((route) => (
+                <code
+                  key={route}
+                  className='border border-[var(--home-line)] bg-[var(--home-tint)] px-3 py-2 font-mono text-[11px] text-[var(--home-muted)]'
+                >
+                  POST {route}
+                </code>
+              ))}
+            </div>
+          </AnimateInView>
+
+          <AnimateInView
+            delay={160}
+            className='bg-[var(--home-panel)] p-6 transition-colors hover:bg-[var(--home-panel-hover)] sm:p-8 md:col-span-2'
+            animation='fade-up'
+          >
+            <div className='flex items-start gap-5'>
+              <div className='flex size-9 shrink-0 items-center justify-center border border-[var(--home-line)] bg-[var(--home-tint)] text-[var(--home-accent)]'>
+                <HugeiconsIcon icon={GlobalIcon} strokeWidth={1.7} />
+              </div>
+              <div>
+                <h3 className='text-base font-semibold'>
+                  {t('Global Coverage')}
+                </h3>
+                <p className='mt-2 max-w-2xl text-sm leading-relaxed text-[var(--home-muted)]'>
+                  {t('Multi-region deployment for stable global access')}
+                </p>
+              </div>
+            </div>
+            <div className='mt-8 grid grid-cols-3 gap-3'>
+              {['AP-SOUTHEAST', 'EU-WEST', 'US-EAST'].map((region) => (
+                <div
+                  key={region}
+                  className='border border-[var(--home-line)] bg-[var(--home-tint)] p-3'
+                >
+                  <span className='mb-3 block size-1.5 rounded-full bg-[var(--home-accent)]' />
+                  <span className='font-mono text-[10px]'>{region}</span>
+                </div>
+              ))}
+            </div>
+          </AnimateInView>
         </div>
 
-        {/* Additional features row */}
-        <div className='mt-12 grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-12'>
-          {additionalFeatures.map((f, i) => (
-            <AnimateInView
-              key={f.title}
-              delay={i * 100}
-              animation='fade-up'
-              className='flex flex-col items-center text-center'
+        <div className='mt-10 grid gap-px bg-[var(--home-line)] sm:grid-cols-2 lg:grid-cols-4'>
+          {compactFeatures.map((feature) => (
+            <div
+              key={feature.title}
+              className='bg-[var(--home-canvas)] p-5 sm:p-6'
             >
-              <div className='text-muted-foreground border-border/50 bg-muted/30 group-hover:text-foreground mb-3 flex size-12 items-center justify-center rounded-xl border transition-colors'>
-                {f.icon}
-              </div>
-              <h3 className='mb-1.5 text-sm font-semibold'>{f.title}</h3>
-              <p className='text-muted-foreground max-w-[200px] text-xs leading-relaxed'>
-                {f.desc}
+              <HugeiconsIcon
+                className='text-[var(--home-muted)]'
+                icon={feature.icon}
+                size={20}
+                strokeWidth={1.7}
+              />
+              <h3 className='mt-4 text-sm font-semibold'>{feature.title}</h3>
+              <p className='mt-2 text-xs leading-relaxed text-[var(--home-muted)]'>
+                {feature.description}
               </p>
-            </AnimateInView>
+            </div>
           ))}
         </div>
       </div>

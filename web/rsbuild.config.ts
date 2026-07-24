@@ -70,6 +70,12 @@ export default defineConfig(({ envMode }) => {
       strictPort: false,
       proxy: devProxy,
     },
+    dev: {
+      // TanStack Query/Router Devtools lazy-load their panels internally.
+      // Rspack's import lazy compilation can race those initial requests and
+      // leave the app blank with lazy-compilation-proxy ChunkLoadErrors.
+      lazyCompilation: false,
+    },
     output: {
       // Production optimizations
       minify: isProd,

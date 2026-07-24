@@ -5214,6 +5214,13 @@
     "Zero retention": "零數據保留",
     "Zhipu": "智譜",
     "Zhipu V4": "智譜 V4",
-    "Zoom": "縮放"
+    "Zoom": "縮放",
+    "AI Gateway": "AI 閘道",
+    "Copy API endpoint": "複製 API 端點",
+    "Every model. One gateway. No lock-in.": "所有模型，一個閘道，不受綁定。",
+    "Global API endpoint": "全球 API 端點",
+    "One endpoint for every model": "一個端點，連接所有模型",
+    "One request, fully visible": "一次請求，全程可見",
+    "Your Request": "你的請求"
   }
 }

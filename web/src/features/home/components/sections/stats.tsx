@@ -16,8 +16,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { useRef, useEffect, useCallback } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { AnimateInView } from '@/components/animate-in-view'
+import { cn } from '@/lib/utils'
+
+import { homeLayoutClasses } from '../home-layout'
 
 interface CounterProps {
   end: number
@@ -83,10 +88,6 @@ function Counter(props: CounterProps) {
   )
 }
 
-interface StatsProps {
-  className?: string
-}
-
 interface StatItem {
   end: number
   suffix: string
@@ -94,7 +95,7 @@ interface StatItem {
   decimals?: number
 }
 
-export function Stats(_props: StatsProps) {
+export function Stats() {
   const { t } = useTranslation()
 
   const stats: StatItem[] = [
@@ -105,24 +106,38 @@ export function Stats(_props: StatsProps) {
   ]
 
   return (
-    <div className='border-border/40 bg-muted/10 relative z-10 border-y'>
-      <div className='mx-auto max-w-6xl px-6 py-10 md:py-12'>
-        <div className='grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-12'>
+    <section className='relative z-20 border-t border-[var(--home-line)] bg-[var(--home-tint)] px-4 py-20 sm:px-6 md:py-28 lg:px-8'>
+      <div className='mx-auto max-w-[80rem]'>
+        <AnimateInView className='grid gap-8 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:items-end md:gap-16'>
+          <div>
+            <p className='font-mono text-[10px] font-semibold tracking-[0.18em] text-[var(--home-muted)] uppercase'>
+              {t('High Performance')}
+            </p>
+            <h2 className='mt-4 text-3xl leading-[1.02] font-semibold tracking-[-0.035em] sm:text-4xl md:text-5xl'>
+              {t('Powerful API Management Platform')}
+            </h2>
+          </div>
+          <p className='max-w-2xl text-base leading-relaxed text-[var(--home-muted)] md:justify-self-end md:text-lg'>
+            {t('Support for high concurrency with automatic load balancing')}
+          </p>
+        </AnimateInView>
+
+        <div className={cn('mt-14', homeLayoutClasses.metrics)}>
           {stats.map((s) => (
             <div
               key={s.label}
-              className='flex flex-col items-center text-center'
+              className='home-metric-card flex min-h-36 flex-col justify-between border-r border-b border-[var(--home-line)] p-5 sm:min-h-44 sm:p-7'
             >
-              <span className='text-2xl font-bold tracking-tight md:text-3xl'>
+              <span className='text-4xl font-semibold tracking-[-0.045em] sm:text-5xl'>
                 <Counter end={s.end} suffix={s.suffix} decimals={s.decimals} />
               </span>
-              <span className='text-muted-foreground mt-1.5 text-xs'>
+              <span className='max-w-32 text-xs leading-relaxed text-[var(--home-muted)]'>
                 {s.label}
               </span>
             </div>
           ))}
         </div>
       </div>
-    </div>
+    </section>
   )
 }
