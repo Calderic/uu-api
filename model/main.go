@@ -302,6 +302,12 @@ func migrateDB() error {
 		&SystemTaskLock{},
 		&CasbinRule{},
 		&AuthzRole{},
+		&BlogCategory{},
+		&BlogTag{},
+		&BlogArticle{},
+		&BlogArticleTag{},
+		&BlogSlugRedirect{},
+		&BlogSettings{},
 	)
 	if err != nil {
 		return err
@@ -386,6 +392,9 @@ func migrateDBFast() error {
 		if err != nil {
 			return err
 		}
+	}
+	if err := MigrateBlog(DB); err != nil {
+		return fmt.Errorf("failed to migrate blog: %v", err)
 	}
 	if err := InitializeUserAuthVersions(); err != nil {
 		return err

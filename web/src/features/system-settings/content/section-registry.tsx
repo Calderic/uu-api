@@ -16,6 +16,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
+import { lazy, Suspense } from 'react'
+
+import { Spinner } from '@/components/ui/spinner'
+
 import type { ContentSettings } from '../types'
 import { createSectionRegistry } from '../utils/section-registry'
 import { AnnouncementsSection } from './announcements-section'
@@ -25,6 +29,12 @@ import { DashboardSection } from './dashboard-section'
 import { DrawingSettingsSection } from './drawing-settings-section'
 import { FAQSection } from './faq-section'
 import { UptimeKumaSection } from './uptime-kuma-section'
+
+const BlogSection = lazy(() =>
+  import('./blog/blog-section').then((module) => ({
+    default: module.BlogSection,
+  }))
+)
 
 /**
  * Validate and coerce DataExportDefaultTime to a safe value
@@ -61,6 +71,21 @@ const CONTENT_SECTIONS = [
         enabled={settings['console_setting.announcements_enabled']}
         data={settings['console_setting.announcements']}
       />
+    ),
+  },
+  {
+    id: 'blog',
+    titleKey: 'Blog',
+    build: () => (
+      <Suspense
+        fallback={
+          <div className='flex justify-center py-8' aria-busy='true'>
+            <Spinner />
+          </div>
+        }
+      >
+        <BlogSection />
+      </Suspense>
     ),
   },
   {
