@@ -23,6 +23,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 
 import { LiquidChrome } from '../liquid-chrome'
 import { shouldAnimateLiquidChrome } from '../liquid-chrome-animation'
+import { resolveLiquidChromeDpr } from '../liquid-chrome-quality'
 
 describe('liquid chrome', () => {
   test('renders a decorative full-size WebGL host before client setup', () => {
@@ -66,5 +67,24 @@ describe('liquid chrome', () => {
       }),
       false
     )
+  })
+
+  test('uses native density on standard displays and caps excessive DPR', () => {
+    assert.equal(resolveLiquidChromeDpr(1920, 1080, 1), 1)
+    assert.equal(resolveLiquidChromeDpr(800, 600, 3), 2)
+  })
+
+  test('reduces DPR as a high-density canvas grows to protect frame cost', () => {
+    const compactDpr = resolveLiquidChromeDpr(1280, 800, 2)
+    const largeDpr = resolveLiquidChromeDpr(2560, 1440, 2)
+
+    assert.equal(compactDpr, 2)
+    assert.ok(largeDpr >= 1)
+    assert.ok(largeDpr < compactDpr)
+  })
+
+  test('falls back to standard density for invalid display values', () => {
+    assert.equal(resolveLiquidChromeDpr(1280, 800, Number.NaN), 1)
+    assert.equal(resolveLiquidChromeDpr(1280, 800, 0), 1)
   })
 })

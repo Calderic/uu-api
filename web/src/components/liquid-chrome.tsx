@@ -22,6 +22,7 @@ import { useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
 
 import { shouldAnimateLiquidChrome } from './liquid-chrome-animation'
+import { resolveLiquidChromeDpr } from './liquid-chrome-quality'
 
 const DEFAULT_BASE_COLOR = [0.1, 0.1, 0.1] as const
 
@@ -47,7 +48,7 @@ const FRAGMENT_SHADER = `
   uniform vec2 uMouse;
   varying vec2 vUv;
 
-  vec4 renderImage(vec2 uvCoord) {
+  vec2 warpUv(vec2 uvCoord) {
     vec2 fragCoord = uvCoord * uResolution.xy;
     vec2 uv =
       (2.0 * fragCoord - uResolution.xy) /
@@ -66,25 +67,27 @@ const FRAGMENT_SHADER = `
     float dist = length(diff);
     float falloff = exp(-dist * 20.0);
     float ripple = sin(10.0 * dist - uTime * 2.0) * 0.03;
-    uv += (diff / (dist + 0.0001)) * ripple * falloff;
+    return uv + (diff / (dist + 0.0001)) * ripple * falloff;
+  }
 
-    vec3 color = uBaseColor / abs(sin(uTime - uv.y - uv.x));
-    return vec4(color, 1.0);
+  float renderPhase(vec2 uvCoord) {
+    vec2 uv = warpUv(uvCoord);
+    return uTime - uv.y - uv.x;
   }
 
   void main() {
-    vec4 color = vec4(0.0);
-
-    for (int x = -1; x <= 1; x++) {
-      for (int y = -1; y <= 1; y++) {
-        vec2 offset =
-          vec2(float(x), float(y)) *
-          (1.0 / min(uResolution.x, uResolution.y));
-        color += renderImage(vUv + offset);
-      }
-    }
-
-    gl_FragColor = color / 9.0;
+    float phase = renderPhase(vUv);
+    vec2 texel = 1.0 / uResolution.xy;
+    float phaseDx = renderPhase(vUv + vec2(texel.x, 0.0)) - phase;
+    float phaseDy = renderPhase(vUv + vec2(0.0, texel.y)) - phase;
+    float filterWidth = max(length(vec2(phaseDx, phaseDy)), 0.0001);
+    float ridge = abs(sin(phase));
+    float softenedRidge = sqrt(
+      ridge * ridge + filterWidth * filterWidth
+    );
+    vec3 linearColor = uBaseColor / max(softenedRidge, 0.0001);
+    vec3 color = vec3(1.0) - exp(-linearColor * 1.35);
+    gl_FragColor = vec4(color, 1.0);
   }
 `
 
@@ -119,7 +122,7 @@ export function LiquidChrome(props: LiquidChromeProps) {
       renderer = new Renderer({
         antialias: true,
         depth: false,
-        dpr: Math.min(window.devicePixelRatio || 1, 1.25),
+        dpr: 1,
         powerPreference: 'high-performance',
       })
     } catch {
@@ -158,6 +161,12 @@ export function LiquidChrome(props: LiquidChromeProps) {
         uMouse: { value: mouse },
       },
     })
+    if (!gl.getProgramParameter(program.program, gl.LINK_STATUS)) {
+      program.remove()
+      gl.getExtension('WEBGL_lose_context')?.loseContext()
+      return
+    }
+
     const geometry = new Triangle(gl)
     const mesh = new Mesh(gl, { geometry, program })
     const reducedMotionQuery = window.matchMedia(
@@ -210,6 +219,11 @@ export function LiquidChrome(props: LiquidChromeProps) {
       const bounds = container.getBoundingClientRect()
       if (bounds.width === 0 || bounds.height === 0) return
 
+      renderer.dpr = resolveLiquidChromeDpr(
+        bounds.width,
+        bounds.height,
+        window.devicePixelRatio || 1
+      )
       renderer.setSize(Math.round(bounds.width), Math.round(bounds.height))
       resolution[0] = gl.canvas.width
       resolution[1] = gl.canvas.height
@@ -252,6 +266,7 @@ export function LiquidChrome(props: LiquidChromeProps) {
     intersectionObserver.observe(container)
     reducedMotionQuery.addEventListener('change', refreshAnimation)
     document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('resize', resize, { passive: true })
     if (interactive) {
       window.addEventListener('pointermove', handlePointerMove, {
         passive: true,
@@ -265,6 +280,7 @@ export function LiquidChrome(props: LiquidChromeProps) {
       intersectionObserver.disconnect()
       reducedMotionQuery.removeEventListener('change', refreshAnimation)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('resize', resize)
       if (interactive) {
         window.removeEventListener('pointermove', handlePointerMove)
       }
