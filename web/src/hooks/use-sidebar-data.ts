@@ -17,26 +17,26 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import {
-  Activity,
-  Box,
-  CreditCard,
-  FileText,
-  FlaskConical,
-  Key,
-  LayoutDashboard,
-  ListTodo,
-  MessageSquare,
-  Radio,
-  ServerCog,
-  Settings,
-  Ticket,
-  User,
-  Users,
-  Wallet,
-} from 'lucide-react'
+  Activity01Icon,
+  BubbleChatIcon,
+  ConnectIcon,
+  CreditCardIcon,
+  CubeIcon,
+  DashboardSquare02Icon,
+  File02Icon,
+  Key01Icon,
+  ServerStack01Icon,
+  Settings02Icon,
+  Task01Icon,
+  TestTube01Icon,
+  Ticket01Icon,
+  UserCircleIcon,
+  UserGroupIcon,
+  Wallet01Icon,
+} from '@hugeicons/core-free-icons'
 import { useTranslation } from 'react-i18next'
 
-import { type SidebarData } from '@/components/layout/types'
+import type { SidebarData } from '@/components/layout/types'
 import { ROLE } from '@/lib/roles'
 
 /**
@@ -57,11 +57,11 @@ export function useSidebarData(): SidebarData {
           {
             title: t('Playground'),
             url: '/playground',
-            icon: FlaskConical,
+            icon: TestTube01Icon,
           },
           {
             title: t('Chat'),
-            icon: MessageSquare,
+            icon: BubbleChatIcon,
             type: 'chat-presets',
           },
         ],
@@ -73,29 +73,29 @@ export function useSidebarData(): SidebarData {
           {
             title: t('Overview'),
             url: '/dashboard/overview',
-            icon: Activity,
+            icon: Activity01Icon,
           },
           {
             title: t('Dashboard'),
             url: '/dashboard/models',
-            icon: LayoutDashboard,
+            icon: DashboardSquare02Icon,
           },
           {
             title: t('API Keys'),
             url: '/keys',
-            icon: Key,
+            icon: Key01Icon,
           },
           {
             title: t('Usage Logs'),
             url: '/usage-logs/common',
-            icon: FileText,
+            icon: File02Icon,
           },
           {
             title: t('Task Logs'),
             url: '/usage-logs/task',
             activeUrls: ['/usage-logs/drawing'],
             configUrls: ['/usage-logs/drawing', '/usage-logs/task'],
-            icon: ListTodo,
+            icon: Task01Icon,
           },
         ],
       },
@@ -106,12 +106,12 @@ export function useSidebarData(): SidebarData {
           {
             title: t('Wallet'),
             url: '/wallet',
-            icon: Wallet,
+            icon: Wallet01Icon,
           },
           {
             title: t('Profile'),
             url: '/profile',
-            icon: User,
+            icon: UserCircleIcon,
           },
         ],
       },
@@ -122,39 +122,39 @@ export function useSidebarData(): SidebarData {
           {
             title: t('Channels'),
             url: '/channels',
-            icon: Radio,
+            icon: ConnectIcon,
           },
           {
             title: t('Models'),
             url: '/models/metadata',
-            icon: Box,
+            icon: CubeIcon,
           },
           {
             title: t('Users'),
             url: '/users',
-            icon: Users,
+            icon: UserGroupIcon,
           },
           {
             title: t('Redemption Codes'),
             url: '/redemption-codes',
-            icon: Ticket,
+            icon: Ticket01Icon,
           },
           {
             title: t('Subscriptions'),
             url: '/subscriptions',
-            icon: CreditCard,
+            icon: CreditCardIcon,
           },
           {
             title: t('System Info'),
             url: '/system-info',
-            icon: ServerCog,
+            icon: ServerStack01Icon,
             requiredRole: ROLE.SUPER_ADMIN,
           },
           {
             title: t('System Settings'),
             url: '/system-settings/site',
             activeUrls: ['/system-settings'],
-            icon: Settings,
+            icon: Settings02Icon,
           },
         ],
       },

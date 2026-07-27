@@ -51,6 +51,7 @@ import {
 
 import { normalizeHref } from '../lib/url-utils'
 import type { NavChatPresets } from '../types'
+import { SidebarNavIcon } from './sidebar-nav-icon'
 
 /**
  * Sub-menu item for a single chat preset
@@ -233,7 +234,7 @@ export function ChatPresetsItem({ item }: { item: NavChatPresets }) {
           <DropdownMenuTrigger
             render={<SidebarMenuButton tooltip={item.title} />}
           >
-            {item.icon && <item.icon className='h-4 w-4 shrink-0' />}
+            <SidebarNavIcon icon={item.icon} className='shrink-0' />
             <span className='min-w-0 flex-1 truncate'>{item.title}</span>
             <ChevronRight className='ms-auto h-4 w-4 shrink-0 opacity-70' />
           </DropdownMenuTrigger>
@@ -263,7 +264,7 @@ export function ChatPresetsItem({ item }: { item: NavChatPresets }) {
         className='group/collapsible-trigger'
         render={<SidebarMenuButton />}
       >
-        {item.icon && <item.icon className='shrink-0' />}
+        <SidebarNavIcon icon={item.icon} className='shrink-0' />
         <span className='min-w-0 flex-1 truncate'>{item.title}</span>
         <ChevronRight className='ms-auto size-4 shrink-0 transition-transform duration-200 group-data-[panel-open]/collapsible-trigger:rotate-90' />
       </CollapsibleTrigger>
