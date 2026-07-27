@@ -37,6 +37,10 @@ import { defaultTopNavLinks } from '../config/top-nav.config'
 import type { TopNavLink } from '../types'
 import { HeaderLogo } from './header-logo'
 import { publicHeaderLayoutClasses } from './public-header-layout'
+import {
+  PUBLIC_HEADER_HEIGHT_PX,
+  shouldUseLandingHeaderDarkAppearance,
+} from './public-header-visibility'
 
 const AUTH_PROMPT_SECONDS = 5
 
@@ -77,6 +81,7 @@ export function PublicHeader(props: PublicHeaderProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [scrolled, setScrolled] = useState(false)
+  const [landingHeroActive, setLandingHeroActive] = useState(true)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [authPromptTarget, setAuthPromptTarget] =
     useState<AuthPromptTarget | null>(null)
@@ -93,6 +98,9 @@ export function PublicHeader(props: PublicHeaderProps) {
   const notifications = useNotifications()
   const routerState = useRouterState()
   const pathname = routerState.location.pathname
+  const isLandingPage = pathname === '/'
+  const landingAtTop = isLandingPage && !scrolled
+  const landingUsesDarkAppearance = isLandingPage && landingHeroActive
 
   const user = auth.user
   const isAuthenticated = !!user
@@ -105,6 +113,35 @@ export function PublicHeader(props: PublicHeaderProps) {
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  useEffect(() => {
+    if (!isLandingPage) {
+      setLandingHeroActive(false)
+      return
+    }
+
+    setLandingHeroActive(true)
+    const boundary = document.querySelector('[data-home-hero-boundary="true"]')
+    if (!boundary) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setLandingHeroActive(
+          shouldUseLandingHeaderDarkAppearance({
+            boundaryTop: entry.boundingClientRect.top,
+            isIntersecting: entry.isIntersecting,
+          })
+        )
+      },
+      {
+        rootMargin: `-${PUBLIC_HEADER_HEIGHT_PX}px 0px 0px`,
+        threshold: 0,
+      }
+    )
+
+    observer.observe(boundary)
+    return () => observer.disconnect()
+  }, [isLandingPage])
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? 'hidden' : ''
@@ -205,7 +242,14 @@ export function PublicHeader(props: PublicHeaderProps) {
 
   return (
     <>
-      <header className='pointer-events-none fixed inset-x-0 top-0 z-50'>
+      <header
+        className={cn(
+          'pointer-events-none fixed inset-x-0 top-0 z-50',
+          landingUsesDarkAppearance &&
+            publicHeaderLayoutClasses.landingDarkAppearance,
+          landingAtTop && publicHeaderLayoutClasses.topContrastBackdrop
+        )}
+      >
         <div
           className={cn(
             'pointer-events-auto mx-auto transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]',
@@ -345,6 +389,8 @@ export function PublicHeader(props: PublicHeaderProps) {
       <div
         className={cn(
           'bg-background/98 fixed inset-0 z-40 backdrop-blur-2xl transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] sm:pointer-events-none sm:hidden',
+          landingUsesDarkAppearance &&
+            publicHeaderLayoutClasses.landingDarkAppearance,
           mobileOpen
             ? 'pointer-events-auto opacity-100'
             : 'pointer-events-none opacity-0'

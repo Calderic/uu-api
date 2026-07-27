@@ -16,9 +16,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-export const publicHeaderLayoutClasses = {
-  brandLink: 'group flex shrink-0 items-center gap-1.5',
-  landingDarkAppearance: 'dark text-foreground',
-  topContrastBackdrop:
-    'bg-gradient-to-b from-background/90 via-background/65 to-transparent',
-} as const
+export interface LiquidChromeAnimationState {
+  pageVisible: boolean
+  reducedMotion: boolean
+  visible: boolean
+}
+
+export function shouldAnimateLiquidChrome(
+  state: LiquidChromeAnimationState
+): boolean {
+  return state.visible && state.pageVisible && !state.reducedMotion
+}

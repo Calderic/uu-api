@@ -23,13 +23,13 @@ import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react'
 import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { LiquidChrome } from '@/components/liquid-chrome'
 import { SplitText } from '@/components/split-text'
 import { Button } from '@/components/ui/button'
 import { useStatus } from '@/hooks/use-status'
 import { useSystemConfig } from '@/hooks/use-system-config'
 import { cn } from '@/lib/utils'
 
-import { HeroCodeCanvas } from '../hero-code-canvas'
 import { HeroEndpoint } from '../hero-endpoint'
 import { homeLayoutClasses } from '../home-layout'
 
@@ -40,6 +40,7 @@ interface HeroProps {
 
 const HERO_TITLE_FROM = { opacity: 0, y: 48 }
 const HERO_TITLE_TO = { opacity: 1, y: 0 }
+const HERO_CHROME_BASE_COLOR = [0.075, 0.075, 0.075] as const
 
 export function Hero(props: HeroProps) {
   const { t } = useTranslation()
@@ -73,12 +74,18 @@ export function Hero(props: HeroProps) {
     >
       <motion.div
         aria-hidden='true'
-        className='absolute inset-0 -z-10'
+        className={homeLayoutClasses.liquidChromeBackdrop}
         style={reducedMotion ? undefined : { y: backgroundY }}
       >
-        <HeroCodeCanvas className='opacity-80' />
-        <div className='home-hero-ambient absolute inset-0' />
-        <div className='home-hero-grid absolute inset-0' />
+        <LiquidChrome
+          baseColor={HERO_CHROME_BASE_COLOR}
+          speed={0.16}
+          amplitude={0.38}
+          frequencyX={2.6}
+          frequencyY={1.8}
+          interactive={false}
+        />
+        <div className='home-liquid-chrome-scrim absolute inset-0' />
       </motion.div>
 
       <motion.div

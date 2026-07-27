@@ -32,50 +32,60 @@ import {
 import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge } from '@/components/ui/badge'
 import { useMediaQuery } from '@/hooks/use-media-query'
 
 import { homeLayoutClasses } from '../home-layout'
 
-interface ConnectionLineProps {
-  progress: MotionValue<number>
-  range: [number, number]
-  interactive: boolean
+interface FlowStep {
+  description: string
+  icon: typeof CodeIcon
+  number: string
+  title: string
 }
 
-function ConnectionLine(props: ConnectionLineProps) {
-  const scaleX = useTransform(props.progress, props.range, [0, 1])
-  const dotLeft = useTransform(props.progress, props.range, ['0%', '100%'])
-  const dotOpacity = useTransform(
+interface FlowNarrativeProps {
+  index: number
+  progress: MotionValue<number>
+  step: FlowStep
+}
+
+function FlowNarrative(props: FlowNarrativeProps) {
+  const start = props.index * 0.31
+  const end = Math.min(start + 0.18, 0.92)
+  const fadeStart = Math.min(end + 0.12, 0.92)
+  const fadeEnd = Math.min(fadeStart + 0.1, 1)
+  const opacity = useTransform(
     props.progress,
-    [
-      props.range[0],
-      props.range[0] + 0.02,
-      props.range[1] - 0.02,
-      props.range[1],
-    ],
-    [0, 1, 1, 0]
+    [start, end, fadeStart, fadeEnd],
+    [0.12, 1, 1, props.index === 2 ? 1 : 0.12]
   )
+  const x = useTransform(props.progress, [start, end], [-24, 0])
 
   return (
-    <div className='relative h-px flex-1 bg-[var(--home-flow-line)]'>
-      {props.interactive ? (
-        <>
-          <motion.span
+    <motion.article
+      className='absolute inset-0 flex flex-col justify-center'
+      style={{ opacity, x }}
+    >
+      <div className='mb-7 flex items-center gap-4'>
+        <span className='flex size-11 items-center justify-center border border-[var(--home-flow-line)] text-[var(--home-flow-accent)]'>
+          <HugeiconsIcon
             aria-hidden='true'
-            className='absolute inset-0 origin-left bg-[var(--home-flow-accent)]'
-            style={{ scaleX }}
+            icon={props.step.icon}
+            size={20}
+            strokeWidth={1.5}
           />
-          <motion.span
-            aria-hidden='true'
-            className='absolute top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--home-flow-accent)] shadow-[0_0_12px_var(--home-flow-accent)]'
-            style={{ left: dotLeft, opacity: dotOpacity }}
-          />
-        </>
-      ) : (
-        <span className='absolute inset-0 bg-[var(--home-flow-accent)]' />
-      )}
-    </div>
+        </span>
+        <span className='font-mono text-[10px] tracking-[0.2em] text-[var(--home-flow-muted)]'>
+          {props.step.number} / 03
+        </span>
+      </div>
+      <h3 className='text-[clamp(2.8rem,5vw,5.4rem)] leading-[0.9] font-semibold tracking-[-0.06em]'>
+        {props.step.title}
+      </h3>
+      <p className='mt-6 max-w-md text-sm leading-relaxed text-[var(--home-flow-muted)] md:text-base'>
+        {props.step.description}
+      </p>
+    </motion.article>
   )
 }
 
@@ -83,63 +93,180 @@ interface ModelNodeProps {
   interactive: boolean
   model: string
   progress: MotionValue<number>
-  start: number
+  range: [number, number]
 }
 
 function ModelNode(props: ModelNodeProps) {
-  const opacity = useTransform(
-    props.progress,
-    [props.start, props.start + 0.05, 1],
-    [0, 1, 1]
-  )
+  const opacity = useTransform(props.progress, props.range, [0.18, 1])
 
   return (
-    <div className='relative border border-[var(--home-flow-line)] px-3 py-2 text-center font-mono text-[10px]'>
+    <div className='relative flex items-center justify-between border-t border-[var(--home-flow-line)] px-4 py-3 font-mono text-[10px]'>
       {props.interactive ? (
         <motion.span
           aria-hidden='true'
-          className='absolute inset-0 border border-[var(--home-flow-accent)] bg-[var(--home-flow-accent-soft)] shadow-[0_0_20px_var(--home-flow-accent-soft)]'
+          className='absolute inset-0 bg-[var(--home-flow-accent-soft)]'
           style={{ opacity }}
         />
       ) : null}
       <span className='relative'>{props.model}</span>
+      <span className='relative flex items-center gap-2 text-[var(--home-flow-muted)]'>
+        <span className='size-1.5 rounded-full bg-[var(--home-flow-accent)]' />
+        READY
+      </span>
     </div>
   )
 }
 
-interface StepNarrativeProps {
-  description: string
-  fadeIn: [number, number]
-  fadeOut?: [number, number]
+interface RequestInstrumentProps {
+  interactive: boolean
+  latency: MotionValue<string>
   progress: MotionValue<number>
-  title: string
+  tokens: MotionValue<string>
 }
 
-function StepNarrative(props: StepNarrativeProps) {
-  const inputRange = props.fadeOut
-    ? [props.fadeIn[0], props.fadeIn[1], props.fadeOut[0], props.fadeOut[1]]
-    : [props.fadeIn[0], props.fadeIn[1], 1]
-  const opacity = useTransform(
+function RequestInstrument(props: RequestInstrumentProps) {
+  const requestLine = useTransform(props.progress, [0.04, 0.3], [0, 1])
+  const gatewayGlow = useTransform(
     props.progress,
-    inputRange,
-    props.fadeOut ? [0, 1, 1, 0] : [0, 1, 1]
+    [0.27, 0.42, 0.58],
+    [0.08, 0.64, 0.18]
   )
-  const y = useTransform(
-    props.progress,
-    inputRange,
-    props.fadeOut ? [20, 0, 0, -16] : [20, 0, 0]
-  )
+  const responseLine = useTransform(props.progress, [0.46, 0.78], [0, 1])
+  const scanY = useTransform(props.progress, [0.04, 0.94], ['4%', '92%'])
 
   return (
-    <motion.div
-      className='absolute inset-0 flex flex-col items-center justify-center text-center'
-      style={{ opacity, y }}
-    >
-      <h3 className='text-xl font-semibold md:text-2xl'>{props.title}</h3>
-      <p className='mt-2 max-w-md text-sm leading-relaxed text-[var(--home-flow-muted)]'>
-        {props.description}
-      </p>
-    </motion.div>
+    <div className='home-request-instrument relative min-h-[34rem] overflow-hidden border border-[var(--home-flow-line)] bg-[var(--home-flow-panel)] sm:min-h-[38rem]'>
+      {props.interactive ? (
+        <motion.div
+          aria-hidden='true'
+          className='home-instrument-scan pointer-events-none absolute right-0 left-0 z-20 h-px bg-[var(--home-flow-accent)]'
+          style={{ top: scanY }}
+        />
+      ) : null}
+
+      <div className='flex items-center justify-between border-b border-[var(--home-flow-line)] px-4 py-3 font-mono text-[9px] tracking-[0.16em] text-[var(--home-flow-muted)]'>
+        <span>TRACE / 8F41-A90C</span>
+        <span className='flex items-center gap-2'>
+          <span className='home-live-dot' aria-hidden='true' />
+          LIVE
+        </span>
+      </div>
+
+      <div className='grid min-h-[31rem] sm:grid-cols-[minmax(0,1.15fr)_minmax(12rem,0.85fr)]'>
+        <div className='relative flex flex-col justify-between border-b border-[var(--home-flow-line)] p-5 sm:border-r sm:border-b-0 sm:p-7'>
+          <div>
+            <span className='font-mono text-[9px] tracking-[0.16em] text-[var(--home-flow-muted)]'>
+              INCOMING REQUEST
+            </span>
+            <div className='mt-6 space-y-3 font-mono text-[10px] sm:text-xs'>
+              <p>
+                <span className='text-[var(--home-flow-accent)]'>POST</span>{' '}
+                /v1/responses
+              </p>
+              <p className='text-[var(--home-flow-muted)]'>
+                model: <span className='text-[var(--home-flow-ink)]'>auto</span>
+              </p>
+              <p className='text-[var(--home-flow-muted)]'>
+                stream:{' '}
+                <span className='text-[var(--home-flow-ink)]'>true</span>
+              </p>
+            </div>
+          </div>
+
+          <div className='relative py-12'>
+            <div className='absolute top-1/2 right-0 left-0 h-px bg-[var(--home-flow-line)]'>
+              <motion.span
+                aria-hidden='true'
+                className='absolute inset-0 origin-left bg-[var(--home-flow-accent)] shadow-[0_0_18px_var(--home-flow-accent)]'
+                style={props.interactive ? { scaleX: requestLine } : undefined}
+              />
+            </div>
+            <motion.div
+              className='relative mx-auto flex w-fit items-center gap-3 border border-[var(--home-flow-accent)] bg-[var(--home-flow)] px-4 py-3 font-mono text-[10px] shadow-[0_0_44px_var(--home-flow-accent-soft)]'
+              style={props.interactive ? { opacity: gatewayGlow } : undefined}
+            >
+              <HugeiconsIcon
+                aria-hidden='true'
+                icon={Route01Icon}
+                size={17}
+                strokeWidth={1.6}
+              />
+              AI GATEWAY
+            </motion.div>
+          </div>
+
+          <div>
+            <div className='mb-4 flex items-center justify-between font-mono text-[9px] tracking-[0.16em] text-[var(--home-flow-muted)]'>
+              <span>RESPONSE STREAM</span>
+              <span>SSE</span>
+            </div>
+            <div className='h-px overflow-hidden bg-[var(--home-flow-line)]'>
+              <motion.div
+                aria-hidden='true'
+                className='h-full origin-left bg-[var(--home-flow-accent)]'
+                style={props.interactive ? { scaleX: responseLine } : undefined}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className='flex flex-col'>
+          <div className='flex-1'>
+            <div className='px-4 py-4 font-mono text-[9px] tracking-[0.16em] text-[var(--home-flow-muted)]'>
+              UPSTREAMS
+            </div>
+            <ModelNode
+              interactive={props.interactive}
+              model='OpenAI'
+              progress={props.progress}
+              range={[0.38, 0.48]}
+            />
+            <ModelNode
+              interactive={props.interactive}
+              model='Claude'
+              progress={props.progress}
+              range={[0.48, 0.58]}
+            />
+            <ModelNode
+              interactive={props.interactive}
+              model='Gemini'
+              progress={props.progress}
+              range={[0.58, 0.68]}
+            />
+          </div>
+
+          <div className='grid grid-cols-2 border-t border-[var(--home-flow-line)]'>
+            <div className='border-r border-[var(--home-flow-line)] p-4'>
+              <span className='font-mono text-[8px] tracking-[0.16em] text-[var(--home-flow-muted)]'>
+                LATENCY
+              </span>
+              <span className='mt-2 block text-2xl font-semibold tracking-[-0.04em] tabular-nums'>
+                {props.interactive ? (
+                  <motion.span>{props.latency}</motion.span>
+                ) : (
+                  '96'
+                )}
+                <small className='ml-1 text-[10px] text-[var(--home-flow-muted)]'>
+                  MS
+                </small>
+              </span>
+            </div>
+            <div className='p-4'>
+              <span className='font-mono text-[8px] tracking-[0.16em] text-[var(--home-flow-muted)]'>
+                TOKENS
+              </span>
+              <span className='mt-2 block text-2xl font-semibold tracking-[-0.04em] text-[var(--home-flow-accent)] tabular-nums'>
+                {props.interactive ? (
+                  <motion.span>{props.tokens}</motion.span>
+                ) : (
+                  '2,148'
+                )}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -153,59 +280,52 @@ export function HowItWorks() {
     target: sectionRef,
     offset: ['start start', 'end end'],
   })
-  const stageOpacity = useTransform(scrollYProgress, [0, 0.05, 1], [0, 1, 1])
-  const gatewayScale = useTransform(scrollYProgress, [0.72, 0.9], [0.85, 1.3])
-  const gatewayPulse = useTransform(
-    scrollYProgress,
-    [0.72, 0.78, 0.95],
-    [0, 0.55, 0]
+  const latencyValue = useTransform(scrollYProgress, [0.52, 0.9], [0, 96], {
+    clamp: true,
+  })
+  const latencyText = useTransform(latencyValue, (value) =>
+    Math.round(value).toString()
   )
-  const latency = useTransform(scrollYProgress, [0.7, 0.92], [0, 96], {
+  const tokenValue = useTransform(scrollYProgress, [0.52, 0.9], [0, 2148], {
     clamp: true,
   })
-  const latencyText = useTransform(latency, (value) => `${Math.round(value)}`)
-  const tokens = useTransform(scrollYProgress, [0.7, 0.92], [0, 2148], {
-    clamp: true,
-  })
-  const tokenText = useTransform(tokens, (value) =>
+  const tokenText = useTransform(tokenValue, (value) =>
     Math.round(value).toLocaleString()
   )
 
-  const steps = [
+  const steps: FlowStep[] = [
     {
-      num: '01',
+      number: '01',
       title: t('Send'),
       description: t(
         'Connect through OpenAI, Claude, Gemini, and other compatible API routes'
       ),
       icon: CodeIcon,
-      fadeIn: [0.04, 0.09] as [number, number],
-      fadeOut: [0.3, 0.35] as [number, number],
     },
     {
-      num: '02',
+      number: '02',
       title: t('Route'),
       description: t(
         'Support for high concurrency with automatic load balancing'
       ),
       icon: Route01Icon,
-      fadeIn: [0.36, 0.41] as [number, number],
-      fadeOut: [0.6, 0.65] as [number, number],
     },
     {
-      num: '03',
+      number: '03',
       title: t('Monitor'),
       description: t(
         'Track usage, costs and performance with real-time analytics'
       ),
       icon: Analytics01Icon,
-      fadeIn: [0.68, 0.73] as [number, number],
-      fadeOut: undefined,
     },
   ]
 
   return (
-    <section ref={sectionRef} className={homeLayoutClasses.flowStage}>
+    <section
+      ref={sectionRef}
+      data-home-section='request-flow'
+      className={homeLayoutClasses.flowStage}
+    >
       <div className={homeLayoutClasses.flowViewport}>
         <div
           aria-hidden='true'
@@ -216,139 +336,70 @@ export function HowItWorks() {
           className='home-flow-spotlight pointer-events-none absolute inset-0'
         />
 
-        <motion.div
-          className='relative mx-auto w-full max-w-[80rem] px-4 py-20 sm:px-6 lg:px-8 lg:py-0'
-          style={interactive ? { opacity: stageOpacity } : undefined}
-        >
-          <div className='flex flex-wrap items-end justify-between gap-6'>
+        <div className='relative mx-auto w-full max-w-[90rem] px-4 py-24 sm:px-6 lg:px-8 lg:py-0'>
+          <div className='mb-12 flex flex-wrap items-end justify-between gap-6 lg:mb-16'>
             <div>
-              <p className='font-mono text-[10px] font-semibold tracking-[0.18em] text-[var(--home-flow-muted)] uppercase'>
-                {t('Request flow')}
+              <p className='font-mono text-[10px] font-semibold tracking-[0.22em] text-[var(--home-flow-muted)] uppercase'>
+                04 — {t('Request flow')}
               </p>
-              <h2 className='mt-4 max-w-[30rem] text-3xl leading-tight font-semibold tracking-[-0.035em] md:text-5xl'>
+              <h2 className='mt-4 text-[clamp(2.8rem,5.4vw,5.8rem)] leading-[0.9] font-semibold tracking-[-0.06em]'>
                 {t('One request, fully visible')}
               </h2>
             </div>
-
-            <div className='flex items-center gap-8 font-mono'>
-              <div>
-                <span className='block text-[10px] font-semibold tracking-[0.18em] text-[var(--home-flow-muted)] uppercase'>
-                  {t('Latency')}
-                </span>
-                <span className='mt-1 block text-2xl font-semibold tabular-nums md:text-3xl'>
-                  {interactive ? (
-                    <motion.span>{latencyText}</motion.span>
-                  ) : (
-                    '96'
-                  )}
-                  <span className='ml-1 text-sm text-[var(--home-flow-muted)]'>
-                    ms
-                  </span>
-                </span>
-              </div>
-              <div>
-                <span className='block text-[10px] font-semibold tracking-[0.18em] text-[var(--home-flow-muted)] uppercase'>
-                  {t('Tokens')}
-                </span>
-                <span className='mt-1 block text-2xl font-semibold text-[var(--home-flow-accent)] tabular-nums md:text-3xl'>
-                  {interactive ? (
-                    <motion.span>{tokenText}</motion.span>
-                  ) : (
-                    '2,148'
-                  )}
-                </span>
-              </div>
-            </div>
+            <span className='font-mono text-[9px] tracking-[0.18em] text-[var(--home-flow-muted)]'>
+              TRACE MODE / ACTIVE
+            </span>
           </div>
 
-          <div className='mt-14 flex items-center gap-3 sm:gap-4 lg:mt-20'>
-            <div className='shrink-0 border border-[var(--home-flow-line)] bg-[var(--home-flow-panel)] px-3 py-3 text-xs font-semibold sm:px-4 sm:text-sm'>
-              {t('Your Request')}
-            </div>
-
-            <ConnectionLine
-              progress={scrollYProgress}
-              range={[0.06, 0.26]}
-              interactive={interactive}
-            />
-
-            <div className='relative shrink-0'>
-              {interactive ? (
-                <motion.span
-                  aria-hidden='true'
-                  className='absolute -inset-3 rounded-2xl border border-[var(--home-flow-accent)]'
-                  style={{ scale: gatewayScale, opacity: gatewayPulse }}
-                />
-              ) : null}
-              <div className='relative border border-[var(--home-flow-accent)] bg-[var(--home-flow-accent-soft)] px-4 py-3 shadow-[0_0_40px_var(--home-flow-accent-soft)]'>
-                <Badge variant='outline'>{t('AI Gateway')}</Badge>
+          <div className='grid gap-10 lg:grid-cols-[minmax(19rem,0.72fr)_minmax(34rem,1.28fr)] lg:gap-16'>
+            {interactive ? (
+              <div className='relative min-h-[34rem]'>
+                {steps.map((step, index) => (
+                  <FlowNarrative
+                    key={step.number}
+                    index={index}
+                    progress={scrollYProgress}
+                    step={step}
+                  />
+                ))}
               </div>
-            </div>
-
-            <ConnectionLine
-              progress={scrollYProgress}
-              range={[0.36, 0.52]}
-              interactive={interactive}
-            />
-
-            <div className='flex w-20 shrink-0 flex-col gap-2 sm:w-28'>
-              <ModelNode
-                model='OpenAI'
-                progress={scrollYProgress}
-                start={0.52}
-                interactive={interactive}
-              />
-              <ModelNode
-                model='Claude'
-                progress={scrollYProgress}
-                start={0.58}
-                interactive={interactive}
-              />
-              <ModelNode
-                model='Gemini'
-                progress={scrollYProgress}
-                start={0.64}
-                interactive={interactive}
-              />
-            </div>
-          </div>
-
-          {interactive ? (
-            <div className='relative mt-14 h-28 lg:mt-20'>
-              {steps.map((step) => (
-                <StepNarrative
-                  key={step.num}
-                  title={step.title}
-                  description={step.description}
-                  progress={scrollYProgress}
-                  fadeIn={step.fadeIn}
-                  fadeOut={step.fadeOut}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className='mt-12 grid gap-8 md:grid-cols-3'>
-              {steps.map((step) => (
-                <div key={step.num} className='flex items-start gap-4'>
-                  <div className='flex size-10 shrink-0 items-center justify-center border border-[var(--home-flow-line)] text-[var(--home-flow-accent)]'>
-                    <HugeiconsIcon icon={step.icon} strokeWidth={1.7} />
-                  </div>
-                  <div>
-                    <span className='font-mono text-[10px] text-[var(--home-flow-muted)]'>
-                      {step.num}
-                    </span>
-                    <h3 className='mt-1 text-base font-semibold'>
+            ) : (
+              <div className='grid gap-8'>
+                {steps.map((step) => (
+                  <article
+                    key={step.number}
+                    className='border-t border-[var(--home-flow-line)] pt-6'
+                  >
+                    <div className='flex items-center gap-3 text-[var(--home-flow-accent)]'>
+                      <HugeiconsIcon
+                        aria-hidden='true'
+                        icon={step.icon}
+                        size={19}
+                        strokeWidth={1.5}
+                      />
+                      <span className='font-mono text-[9px] tracking-[0.18em]'>
+                        {step.number} / 03
+                      </span>
+                    </div>
+                    <h3 className='mt-5 text-3xl font-semibold tracking-[-0.04em]'>
                       {step.title}
                     </h3>
-                    <p className='mt-2 text-sm leading-relaxed text-[var(--home-flow-muted)]'>
+                    <p className='mt-3 max-w-lg text-sm leading-relaxed text-[var(--home-flow-muted)]'>
                       {step.description}
                     </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </motion.div>
+                  </article>
+                ))}
+              </div>
+            )}
+
+            <RequestInstrument
+              interactive={interactive}
+              latency={latencyText}
+              progress={scrollYProgress}
+              tokens={tokenText}
+            />
+          </div>
+        </div>
       </div>
     </section>
   )

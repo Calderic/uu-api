@@ -118,7 +118,7 @@ export function Home() {
 
   return (
     <PublicLayout showMainContainer={false}>
-      <div className='home-landing'>
+      <div className={homeLayoutClasses.landingRoot}>
         <main
           id='content'
           data-home-page='true'
@@ -126,6 +126,11 @@ export function Home() {
         >
           <div className={homeLayoutClasses.foregroundStack}>
             <Hero isAuthenticated={isAuthenticated} />
+            <div
+              aria-hidden='true'
+              className={homeLayoutClasses.heroBoundary}
+              data-home-hero-boundary='true'
+            />
             <Features />
             <Stats />
             <CTA />

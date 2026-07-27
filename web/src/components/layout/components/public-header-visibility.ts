@@ -16,9 +16,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-export const publicHeaderLayoutClasses = {
-  brandLink: 'group flex shrink-0 items-center gap-1.5',
-  landingDarkAppearance: 'dark text-foreground',
-  topContrastBackdrop:
-    'bg-gradient-to-b from-background/90 via-background/65 to-transparent',
-} as const
+export const PUBLIC_HEADER_HEIGHT_PX = 64
+
+interface LandingHeroBoundaryState {
+  boundaryTop: number
+  isIntersecting: boolean
+}
+
+export function shouldUseLandingHeaderDarkAppearance(
+  state: LandingHeroBoundaryState
+) {
+  return state.isIntersecting || state.boundaryTop > PUBLIC_HEADER_HEIGHT_PX
+}

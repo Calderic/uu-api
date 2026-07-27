@@ -21,6 +21,13 @@ import test from 'node:test'
 
 import { homeLayoutClasses } from '../components/home-layout'
 
+test('only the hero keeps a dark appearance independently from the selected theme', () => {
+  assert.match(homeLayoutClasses.landingRoot, /\bhome-landing\b/)
+  assert.doesNotMatch(homeLayoutClasses.landingRoot, /\bdark\b/)
+  assert.match(homeLayoutClasses.heroStage, /\bhome-hero-dark\b/)
+  assert.match(homeLayoutClasses.heroBoundary, /\bh-px\b/)
+})
+
 test('endpoint stays stacked on narrow screens and becomes inline on desktop', () => {
   assert.match(homeLayoutClasses.endpoint, /\bflex-col\b/)
   assert.match(homeLayoutClasses.endpoint, /\bsm:flex-row\b/)
@@ -35,17 +42,32 @@ test('hero copy uses a two-column editorial layout on large screens', () => {
   )
 })
 
-test('feature cards form a bounded three-column bento grid', () => {
-  assert.match(homeLayoutClasses.featureGrid, /\bmd:grid-cols-3\b/)
-  assert.match(homeLayoutClasses.featureGrid, /\bgap-px\b/)
-  assert.match(homeLayoutClasses.featureGrid, /\boverflow-hidden\b/)
-  assert.match(homeLayoutClasses.featureGrid, /\brounded-xl\b/)
+test('liquid chrome fills the hero background without intercepting input', () => {
+  assert.match(homeLayoutClasses.liquidChromeBackdrop, /\babsolute\b/)
+  assert.match(homeLayoutClasses.liquidChromeBackdrop, /\binset-0\b/)
+  assert.match(
+    homeLayoutClasses.liquidChromeBackdrop,
+    /\bpointer-events-none\b/
+  )
 })
 
-test('metrics keep two columns on mobile and four on wider screens', () => {
-  assert.match(homeLayoutClasses.metrics, /\bgrid-cols-2\b/)
-  assert.match(homeLayoutClasses.metrics, /\bsm:grid-cols-4\b/)
-  assert.match(homeLayoutClasses.metrics, /\brounded-xl\b/)
+test('capability stage keeps the signal map and protocol copy in two columns', () => {
+  assert.match(homeLayoutClasses.featureGrid, /\blg:grid-cols-/)
+  assert.match(homeLayoutClasses.featureGrid, /\boverflow-hidden\b/)
+  assert.match(homeLayoutClasses.featureGrid, /\bborder-y\b/)
+})
+
+test('metrics progress from one column to a four-column editorial rail', () => {
+  assert.doesNotMatch(homeLayoutClasses.metrics, /\bgrid-cols-2\b/)
+  assert.match(homeLayoutClasses.metrics, /\bsm:grid-cols-2\b/)
+  assert.match(homeLayoutClasses.metrics, /\blg:grid-cols-4\b/)
+  assert.match(homeLayoutClasses.metrics, /\bborder-t\b/)
+})
+
+test('model names use a dedicated overflow-safe signal rail', () => {
+  assert.match(homeLayoutClasses.signalRail, /\bw-max\b/)
+  assert.match(homeLayoutClasses.signalRail, /\bmin-w-full\b/)
+  assert.match(homeLayoutClasses.signalRail, /\bhome-signal-rail\b/)
 })
 
 test('hero remains pinned while the next foreground layer covers it', () => {
@@ -56,9 +78,16 @@ test('hero remains pinned while the next foreground layer covers it', () => {
 })
 
 test('request flow uses a long sticky scroll stage', () => {
-  assert.ok(homeLayoutClasses.flowStage.includes('lg:h-[340svh]'))
+  assert.ok(homeLayoutClasses.flowStage.includes('lg:h-[380svh]'))
   assert.match(homeLayoutClasses.flowViewport, /\blg:sticky\b/)
   assert.match(homeLayoutClasses.flowViewport, /\blg:h-svh\b/)
+})
+
+test('kinetic manifesto becomes sticky only on large screens', () => {
+  assert.ok(homeLayoutClasses.kineticStage.includes('lg:h-[260svh]'))
+  assert.match(homeLayoutClasses.kineticViewport, /\bmin-h-svh\b/)
+  assert.match(homeLayoutClasses.kineticViewport, /\blg:sticky\b/)
+  assert.match(homeLayoutClasses.kineticViewport, /\blg:h-svh\b/)
 })
 
 test('brand reveal stays behind the foreground content', () => {

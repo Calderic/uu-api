@@ -17,19 +17,28 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 export const homeLayoutClasses = {
+  landingRoot: 'home-landing',
   brandSpacer: 'home-brand-reveal relative z-0',
   endpoint:
     'flex w-full max-w-[46rem] flex-col overflow-hidden rounded-xl border border-[var(--home-line)] bg-[var(--home-glass)] shadow-sm backdrop-blur-md sm:w-fit sm:flex-row sm:items-stretch',
   featureGrid:
-    'grid gap-px overflow-hidden rounded-xl border border-[var(--home-line)] bg-[var(--home-line)] md:grid-cols-3',
-  flowStage: 'relative z-20 lg:h-[340svh]',
+    'grid overflow-hidden border-y border-[var(--home-line)] lg:grid-cols-[minmax(0,1.18fr)_minmax(22rem,0.82fr)]',
+  flowStage: 'relative z-20 lg:h-[380svh]',
   flowViewport:
-    'relative overflow-hidden rounded-t-[2.5rem] bg-[var(--home-flow)] text-[var(--home-flow-ink)] shadow-[0_-32px_90px_-24px_var(--home-shadow)] lg:sticky lg:top-0 lg:flex lg:h-svh lg:flex-col lg:justify-center',
+    'relative overflow-hidden border-t border-[var(--home-flow-line)] bg-[var(--home-flow)] text-[var(--home-flow-ink)] lg:sticky lg:top-0 lg:flex lg:h-svh lg:flex-col lg:justify-center',
   foregroundStack: 'relative z-10 bg-[var(--home-canvas)]',
+  heroBoundary: 'relative z-20 h-px bg-[var(--home-canvas)]',
   heroStage:
-    'relative isolate z-10 min-h-svh overflow-hidden bg-[var(--home-canvas)] px-4 pt-24 pb-10 sm:px-6 sm:pt-28 lg:sticky lg:top-0 lg:h-svh lg:px-8 lg:pt-24',
+    'home-hero-dark relative isolate z-10 min-h-svh overflow-hidden bg-[var(--home-canvas)] px-4 pt-24 pb-10 sm:px-6 sm:pt-28 lg:sticky lg:top-0 lg:h-svh lg:px-8 lg:pt-24',
+  liquidChromeBackdrop:
+    'pointer-events-none absolute inset-0 -z-10 overflow-hidden',
   heroContent:
     'grid min-w-0 items-end gap-8 lg:grid-cols-[minmax(0,1.08fr)_minmax(24rem,0.92fr)] lg:gap-14',
+  kineticStage: 'relative z-20 lg:h-[260svh]',
+  kineticViewport:
+    'relative isolate flex min-h-svh items-center overflow-hidden bg-[var(--home-tint)] px-4 py-24 sm:px-6 lg:sticky lg:top-0 lg:h-svh lg:px-8 lg:py-0',
   metrics:
-    'grid grid-cols-2 overflow-hidden rounded-xl border border-[var(--home-line)] sm:grid-cols-4',
+    'grid border-t border-[var(--home-line)] sm:grid-cols-2 lg:grid-cols-4',
+  signalRail:
+    'home-signal-rail flex w-max min-w-full items-center border-y border-[var(--home-line)] py-4',
 } as const

@@ -27,3 +27,18 @@ test('public header keeps the logo mark close to the site name', () => {
   assert.ok(brandClasses.includes('gap-1.5'))
   assert.ok(brandClasses.includes('items-center'))
 })
+
+test('public header keeps navigation readable over animated backgrounds', () => {
+  const backdropClasses =
+    publicHeaderLayoutClasses.topContrastBackdrop.split(' ')
+  const appearanceClasses =
+    publicHeaderLayoutClasses.landingDarkAppearance.split(' ')
+
+  assert.ok(appearanceClasses.includes('dark'))
+  assert.ok(appearanceClasses.includes('text-foreground'))
+  assert.ok(backdropClasses.includes('bg-gradient-to-b'))
+  assert.ok(backdropClasses.includes('from-background/90'))
+  assert.ok(backdropClasses.includes('to-transparent'))
+  assert.ok(!backdropClasses.some((className) => className.includes('rounded')))
+  assert.ok(!backdropClasses.some((className) => className.includes('ring-')))
+})

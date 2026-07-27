@@ -23,215 +23,263 @@ import {
   GlobalIcon,
   Route01Icon,
   SecurityCheckIcon,
-  UserGroupIcon,
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useTranslation } from 'react-i18next'
 
 import { AnimateInView } from '@/components/animate-in-view'
 import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
 
 import { homeLayoutClasses } from '../home-layout'
 
-const MODEL_NAMES = ['OpenAI', 'Claude', 'Gemini', 'DeepSeek', 'Qwen', 'Llama']
-const API_ROUTES = ['/v1/responses', '/v1/messages', '/v1/chat/completions']
+const MODEL_NAMES = [
+  'OpenAI',
+  'Claude',
+  'Gemini',
+  'DeepSeek',
+  'Qwen',
+  'Llama',
+] as const
+
+const ORBIT_NODES = [
+  { name: 'OpenAI', className: 'home-orbit-node home-orbit-node-a' },
+  { name: 'Claude', className: 'home-orbit-node home-orbit-node-b' },
+  { name: 'Gemini', className: 'home-orbit-node home-orbit-node-c' },
+  { name: 'Qwen', className: 'home-orbit-node home-orbit-node-d' },
+] as const
+
+const API_ROUTES = [
+  '/v1/responses',
+  '/v1/messages',
+  '/v1/chat/completions',
+] as const
 
 export function Features() {
   const { t } = useTranslation()
 
-  const compactFeatures = [
+  const capabilities = [
     {
+      number: '02',
+      icon: FlashIcon,
+      title: t('Lightning Fast'),
+      description: t(
+        'Optimized network architecture ensures millisecond response times'
+      ),
+      meta: '096 MS',
+    },
+    {
+      number: '03',
       icon: SecurityCheckIcon,
       title: t('Secure & Reliable'),
       description: t(
         'Enterprise-grade security with comprehensive permission management'
       ),
+      meta: 'TLS / RBAC',
     },
     {
+      number: '04',
       icon: DollarCircleIcon,
       title: t('Transparent Billing'),
       description: t('Pay-as-you-go with real-time usage monitoring'),
+      meta: 'TOKEN × RATE',
     },
     {
+      number: '05',
       icon: GlobalIcon,
       title: t('Global Coverage'),
       description: t('Multi-region deployment for stable global access'),
-    },
-    {
-      icon: UserGroupIcon,
-      title: t('Team Collaboration'),
-      description: t(
-        'Multi-user management with flexible permission allocation'
-      ),
+      meta: 'AP / EU / US',
     },
   ]
 
   return (
-    <section className='relative z-20 bg-[var(--home-canvas)] px-4 py-20 sm:px-6 md:py-28 lg:rounded-t-[2.5rem] lg:px-8 lg:shadow-[0_-28px_80px_-36px_var(--home-shadow)]'>
-      <div className='mx-auto max-w-[80rem]'>
-        <AnimateInView className='mb-14 max-w-2xl md:mb-20'>
-          <p className='mb-4 font-mono text-[10px] font-semibold tracking-[0.18em] text-[var(--home-muted)] uppercase'>
-            {t('Core Features')}
-          </p>
-          <h2 className='text-3xl leading-[1.02] font-semibold tracking-[-0.035em] sm:text-4xl md:text-5xl'>
-            {t('Built for developers,')}
-            <br />
-            {t('designed for scale')}
-          </h2>
-        </AnimateInView>
+    <section
+      data-home-section='capabilities'
+      className='relative z-20 rounded-t-[2rem] bg-[var(--home-canvas)] pt-24 shadow-[0_-28px_90px_-44px_var(--home-shadow)] sm:rounded-t-[3rem] md:pt-32'
+    >
+      <div className='mx-auto max-w-[90rem] px-4 sm:px-6 lg:px-8'>
+        <div className='grid gap-10 pb-16 md:grid-cols-[minmax(0,0.88fr)_minmax(24rem,1.12fr)] md:items-end md:gap-16 md:pb-24'>
+          <AnimateInView>
+            <p className='font-mono text-[10px] font-semibold tracking-[0.22em] text-[var(--home-muted)] uppercase'>
+              01 — {t('Core Features')}
+            </p>
+            <h2 className='mt-5 max-w-[11ch] text-[clamp(3rem,7vw,7rem)] leading-[0.88] font-semibold tracking-[-0.065em]'>
+              {t('Built for developers,')}
+              <br />
+              <span className='text-[var(--home-muted)]'>
+                {t('designed for scale')}
+              </span>
+            </h2>
+          </AnimateInView>
+
+          <AnimateInView
+            animation='fade-up'
+            className='md:justify-self-end'
+            delay={100}
+          >
+            <p className='max-w-xl text-base leading-relaxed text-[var(--home-muted)] sm:text-lg md:text-xl'>
+              {t(
+                'Connect through OpenAI, Claude, Gemini, and other compatible API routes'
+              )}
+            </p>
+            <div className='mt-8 flex items-center gap-3 font-mono text-[10px] tracking-[0.16em] text-[var(--home-muted)] uppercase'>
+              <span className='home-live-dot' aria-hidden='true' />
+              {t('Multi-protocol Compatible')}
+            </div>
+          </AnimateInView>
+        </div>
 
         <div className={homeLayoutClasses.featureGrid}>
           <AnimateInView
-            className='group bg-[var(--home-panel)] p-6 transition-colors hover:bg-[var(--home-panel-hover)] sm:p-8 md:col-span-2 md:min-h-[22rem]'
-            animation='fade-up'
+            animation='scale-in'
+            className='home-orbit-stage relative min-h-[28rem] overflow-hidden border-b border-[var(--home-line)] lg:min-h-[44rem] lg:border-r lg:border-b-0'
           >
-            <div className='flex items-start justify-between gap-6'>
-              <div>
-                <div className='mb-5 flex size-9 items-center justify-center border border-[var(--home-line)] bg-[var(--home-tint)] text-[var(--home-accent)]'>
-                  <HugeiconsIcon icon={Route01Icon} strokeWidth={1.7} />
-                </div>
-                <h3 className='text-base font-semibold'>{t('Model Access')}</h3>
-                <p className='mt-2 max-w-xl text-sm leading-relaxed text-[var(--home-muted)]'>
-                  {t(
-                    'Compatible API routes for common AI application workflows'
-                  )}
-                </p>
-              </div>
-              <Badge variant='outline'>{t('Multi-protocol Compatible')}</Badge>
+            <div className='home-orbit-coordinate' aria-hidden='true' />
+            <div className='home-orbit home-orbit-outer' aria-hidden='true' />
+            <div className='home-orbit home-orbit-middle' aria-hidden='true' />
+            <div className='home-orbit home-orbit-inner' aria-hidden='true' />
+            <div
+              className='home-orbit-axis home-orbit-axis-x'
+              aria-hidden='true'
+            />
+            <div
+              className='home-orbit-axis home-orbit-axis-y'
+              aria-hidden='true'
+            />
+
+            {ORBIT_NODES.map((node) => (
+              <span key={node.name} className={node.className}>
+                {node.name}
+              </span>
+            ))}
+
+            <div className='home-orbit-core'>
+              <HugeiconsIcon
+                aria-hidden='true'
+                icon={Route01Icon}
+                size={22}
+                strokeWidth={1.6}
+              />
+              <span>{t('AI Gateway')}</span>
             </div>
 
-            <div className='mt-9 border border-[var(--home-line)] bg-[var(--home-tint)] p-4'>
-              <div className='flex items-center gap-3'>
-                <Badge variant='outline'>{t('Your Request')}</Badge>
-                <div className='h-px flex-1 bg-[var(--home-accent)] opacity-60' />
+            <div className='absolute top-6 left-6 font-mono text-[9px] tracking-[0.18em] text-[var(--home-muted)] uppercase sm:top-8 sm:left-8'>
+              SIGNAL MAP / 24—7
+            </div>
+            <div className='absolute right-6 bottom-6 text-right font-mono text-[9px] leading-relaxed tracking-[0.16em] text-[var(--home-muted)] uppercase sm:right-8 sm:bottom-8'>
+              LAT 37.5665
+              <br />
+              LNG 126.9780
+            </div>
+          </AnimateInView>
+
+          <AnimateInView
+            animation='fade-left'
+            className='flex min-h-[34rem] flex-col justify-between px-6 py-8 sm:px-9 sm:py-10 lg:min-h-[44rem] lg:px-12 lg:py-14'
+            delay={80}
+          >
+            <div>
+              <div className='flex items-center justify-between gap-4'>
+                <span className='font-mono text-[10px] tracking-[0.18em] text-[var(--home-muted)]'>
+                  01 / ACCESS
+                </span>
+                <Badge variant='outline'>{t('Model Access')}</Badge>
               </div>
-              <div className='mt-4 grid grid-cols-2 gap-px bg-[var(--home-line)] sm:grid-cols-3'>
-                {MODEL_NAMES.map((name, index) => (
+              <h3 className='mt-9 max-w-[11ch] text-[clamp(2.45rem,5vw,5.5rem)] leading-[0.94] font-semibold tracking-[-0.055em]'>
+                {t('Every model. One gateway. No lock-in.')}
+              </h3>
+            </div>
+
+            <div className='mt-14'>
+              <div className='mb-4 flex items-center gap-3 text-[var(--home-accent)]'>
+                <HugeiconsIcon
+                  aria-hidden='true'
+                  icon={CodeIcon}
+                  size={18}
+                  strokeWidth={1.7}
+                />
+                <span className='font-mono text-[10px] tracking-[0.16em] uppercase'>
+                  {t('Your Request')}
+                </span>
+              </div>
+              <div className='divide-y divide-[var(--home-line)] border-y border-[var(--home-line)]'>
+                {API_ROUTES.map((route, index) => (
                   <div
-                    key={name}
-                    className='bg-[var(--home-panel)] px-3 py-3 text-center font-mono text-[11px] text-[var(--home-muted)] transition-colors group-hover:text-[var(--home-ink)]'
+                    key={route}
+                    className='group flex items-center gap-4 py-4 font-mono text-[11px]'
                   >
+                    <span className='text-[var(--home-muted)]'>
+                      0{index + 1}
+                    </span>
+                    <code className='min-w-0 flex-1 truncate'>{route}</code>
                     <span
                       aria-hidden='true'
-                      className={cn(
-                        'mr-2 inline-block size-1.5 rounded-full',
-                        index < 3
-                          ? 'bg-[var(--home-accent)]'
-                          : 'bg-[var(--home-muted)]'
-                      )}
+                      className='h-px w-8 origin-right bg-[var(--home-accent)] transition-transform duration-500 group-hover:scale-x-150'
                     />
-                    {name}
+                    <span className='text-[var(--home-muted)]'>POST</span>
                   </div>
                 ))}
               </div>
             </div>
           </AnimateInView>
-
-          <AnimateInView
-            delay={80}
-            className='bg-[var(--home-panel)] p-6 transition-colors hover:bg-[var(--home-panel-hover)] sm:p-8'
-            animation='fade-up'
-          >
-            <div className='flex size-9 items-center justify-center border border-[var(--home-line)] bg-[var(--home-tint)] text-[var(--home-accent)]'>
-              <HugeiconsIcon icon={FlashIcon} strokeWidth={1.7} />
-            </div>
-            <h3 className='mt-5 text-base font-semibold'>
-              {t('Lightning Fast')}
-            </h3>
-            <p className='mt-2 text-sm leading-relaxed text-[var(--home-muted)]'>
-              {t(
-                'Optimized network architecture ensures millisecond response times'
-              )}
-            </p>
-            <div className='mt-8 flex items-end gap-1.5' aria-hidden='true'>
-              {[34, 52, 41, 70, 58, 86, 74, 94].map((height) => (
-                <div
-                  key={height}
-                  className='flex-1 bg-[var(--home-accent)] opacity-70'
-                  style={{ height: `${height}px` }}
-                />
-              ))}
-            </div>
-          </AnimateInView>
-
-          <AnimateInView
-            delay={120}
-            className='bg-[var(--home-panel)] p-6 transition-colors hover:bg-[var(--home-panel-hover)] sm:p-8'
-            animation='fade-up'
-          >
-            <div className='flex size-9 items-center justify-center border border-[var(--home-line)] bg-[var(--home-tint)] text-[var(--home-accent)]'>
-              <HugeiconsIcon icon={CodeIcon} strokeWidth={1.7} />
-            </div>
-            <h3 className='mt-5 text-base font-semibold'>
-              {t('Developer Friendly')}
-            </h3>
-            <p className='mt-2 text-sm leading-relaxed text-[var(--home-muted)]'>
-              {t('One API')}
-            </p>
-            <div className='mt-7 flex flex-col gap-2'>
-              {API_ROUTES.map((route) => (
-                <code
-                  key={route}
-                  className='border border-[var(--home-line)] bg-[var(--home-tint)] px-3 py-2 font-mono text-[11px] text-[var(--home-muted)]'
-                >
-                  POST {route}
-                </code>
-              ))}
-            </div>
-          </AnimateInView>
-
-          <AnimateInView
-            delay={160}
-            className='bg-[var(--home-panel)] p-6 transition-colors hover:bg-[var(--home-panel-hover)] sm:p-8 md:col-span-2'
-            animation='fade-up'
-          >
-            <div className='flex items-start gap-5'>
-              <div className='flex size-9 shrink-0 items-center justify-center border border-[var(--home-line)] bg-[var(--home-tint)] text-[var(--home-accent)]'>
-                <HugeiconsIcon icon={GlobalIcon} strokeWidth={1.7} />
-              </div>
-              <div>
-                <h3 className='text-base font-semibold'>
-                  {t('Global Coverage')}
-                </h3>
-                <p className='mt-2 max-w-2xl text-sm leading-relaxed text-[var(--home-muted)]'>
-                  {t('Multi-region deployment for stable global access')}
-                </p>
-              </div>
-            </div>
-            <div className='mt-8 grid grid-cols-3 gap-3'>
-              {['AP-SOUTHEAST', 'EU-WEST', 'US-EAST'].map((region) => (
-                <div
-                  key={region}
-                  className='border border-[var(--home-line)] bg-[var(--home-tint)] p-3'
-                >
-                  <span className='mb-3 block size-1.5 rounded-full bg-[var(--home-accent)]' />
-                  <span className='font-mono text-[10px]'>{region}</span>
-                </div>
-              ))}
-            </div>
-          </AnimateInView>
         </div>
+      </div>
 
-        <div className='mt-10 grid gap-px bg-[var(--home-line)] sm:grid-cols-2 lg:grid-cols-4'>
-          {compactFeatures.map((feature) => (
-            <div
-              key={feature.title}
-              className='bg-[var(--home-canvas)] p-5 sm:p-6'
-            >
+      <div className='mt-16 overflow-hidden md:mt-24'>
+        <div className={homeLayoutClasses.signalRail}>
+          {[false, true].map((isDuplicate) =>
+            MODEL_NAMES.map((model) => (
+              <div
+                key={`${model}-${isDuplicate ? 'duplicate' : 'original'}`}
+                aria-hidden={isDuplicate}
+                className='flex items-center'
+              >
+                <span className='px-8 text-[clamp(1.5rem,3vw,3rem)] font-semibold tracking-[-0.04em] whitespace-nowrap sm:px-12'>
+                  {model}
+                </span>
+                <span
+                  aria-hidden='true'
+                  className='size-1.5 rounded-full bg-[var(--home-accent)]'
+                />
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      <div className='mx-auto grid max-w-[90rem] border-x border-[var(--home-line)] sm:grid-cols-2 lg:grid-cols-4'>
+        {capabilities.map((capability) => (
+          <AnimateInView
+            key={capability.number}
+            animation='fade-up'
+            className='group flex min-h-72 flex-col justify-between border-r border-b border-[var(--home-line)] p-6 transition-colors duration-500 hover:bg-[var(--home-panel-hover)] sm:p-8'
+            delay={Number(capability.number) * 35}
+          >
+            <div className='flex items-start justify-between'>
+              <span className='font-mono text-[10px] text-[var(--home-muted)]'>
+                {capability.number}
+              </span>
               <HugeiconsIcon
-                className='text-[var(--home-muted)]'
-                icon={feature.icon}
-                size={20}
-                strokeWidth={1.7}
+                aria-hidden='true'
+                className='text-[var(--home-accent)] transition-transform duration-500 group-hover:-translate-y-1 group-hover:rotate-6'
+                icon={capability.icon}
+                size={24}
+                strokeWidth={1.5}
               />
-              <h3 className='mt-4 text-sm font-semibold'>{feature.title}</h3>
-              <p className='mt-2 text-xs leading-relaxed text-[var(--home-muted)]'>
-                {feature.description}
+            </div>
+            <div>
+              <span className='font-mono text-[9px] tracking-[0.14em] text-[var(--home-muted)]'>
+                {capability.meta}
+              </span>
+              <h3 className='mt-4 text-xl font-semibold tracking-[-0.025em]'>
+                {capability.title}
+              </h3>
+              <p className='mt-3 text-sm leading-relaxed text-[var(--home-muted)]'>
+                {capability.description}
               </p>
             </div>
-          ))}
-        </div>
+          </AnimateInView>
+        ))}
       </div>
     </section>
   )

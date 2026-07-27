@@ -493,15 +493,15 @@ For commercial licensing, please contact support@quantumnous.com
   --home-panel-hover: oklch(0.975 0 0);
   --home-tint: oklch(0.965 0 0);
   --home-glass: oklch(1 0 0 / 0.62);
-  --home-accent: oklch(0.61 0.18 252);
+  --home-accent: #428faf;
   --home-shadow: oklch(0.1 0 0 / 0.22);
-  --home-flow: oklch(0.145 0 0);
-  --home-flow-ink: oklch(0.97 0 0);
-  --home-flow-muted: oklch(0.7 0 0);
-  --home-flow-line: oklch(1 0 0 / 0.11);
-  --home-flow-panel: oklch(1 0 0 / 0.025);
-  --home-flow-accent: oklch(0.75 0.13 252);
-  --home-flow-accent-soft: oklch(0.68 0.17 252 / 0.09);
+  --home-flow: oklch(0.985 0 0);
+  --home-flow-ink: oklch(0.145 0 0);
+  --home-flow-muted: oklch(0.48 0 0);
+  --home-flow-line: oklch(0.145 0 0 / 0.12);
+  --home-flow-panel: oklch(0.96 0 0 / 0.72);
+  --home-flow-accent: #428faf;
+  --home-flow-accent-soft: rgb(66 143 175 / 0.1);
   --background: var(--home-canvas);
   --foreground: var(--home-ink);
   --primary: var(--home-ink);
@@ -511,7 +511,8 @@ For commercial licensing, please contact support@quantumnous.com
   --muted-foreground: var(--home-muted);
 }
 
-.dark .home-landing {
+.dark .home-landing,
+.home-hero-dark {
   --home-canvas: oklch(0.16 0 0);
   --home-ink: oklch(0.96 0 0);
   --home-muted: oklch(0.69 0 0);
@@ -521,11 +522,26 @@ For commercial licensing, please contact support@quantumnous.com
   --home-panel-hover: oklch(0.195 0 0);
   --home-tint: oklch(0.19 0 0);
   --home-glass: oklch(0.15 0 0 / 0.72);
-  --home-accent: oklch(0.72 0.15 252);
+  --home-accent: #6eb2ce;
   --home-shadow: oklch(0 0 0 / 0.68);
   --home-flow: oklch(0.105 0 0);
+  --home-flow-ink: oklch(0.97 0 0);
   --home-flow-muted: oklch(0.67 0 0);
-  --home-flow-accent: oklch(0.77 0.13 252);
+  --home-flow-line: oklch(1 0 0 / 0.11);
+  --home-flow-panel: oklch(1 0 0 / 0.025);
+  --home-flow-accent: #79bdd8;
+  --home-flow-accent-soft: rgb(121 189 216 / 0.1);
+}
+
+.home-hero-dark {
+  --background: var(--home-canvas);
+  --foreground: var(--home-ink);
+  --primary: var(--home-ink);
+  --primary-foreground: var(--home-canvas);
+  --border: var(--home-line);
+  --muted: var(--home-tint);
+  --muted-foreground: var(--home-muted);
+  color: var(--home-ink);
 }
 
 .home-landing {
@@ -533,37 +549,205 @@ For commercial licensing, please contact support@quantumnous.com
   background: var(--home-canvas);
 }
 
-.home-hero-ambient {
+.home-liquid-chrome-scrim {
   background:
     radial-gradient(
-      circle at 18% 24%,
-      color-mix(in oklch, var(--home-ink) 20%, transparent),
-      transparent 34%
+      ellipse 68% 64% at 18% 82%,
+      color-mix(in oklch, var(--home-canvas) 88%, transparent),
+      transparent 72%
     ),
-    radial-gradient(
-      circle at 86% 74%,
-      color-mix(in oklch, var(--home-ink) 13%, transparent),
-      transparent 32%
+    linear-gradient(
+      to bottom,
+      color-mix(in oklch, var(--home-canvas) 28%, transparent),
+      color-mix(in oklch, var(--home-canvas) 46%, transparent) 56%,
+      color-mix(in oklch, var(--home-canvas) 86%, transparent)
     );
 }
 
-.home-hero-grid {
-  background-image:
-    linear-gradient(to right, var(--home-line) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--home-line) 1px, transparent 1px);
-  background-size: 3.25rem 3.25rem;
-  mask-image: radial-gradient(
-    ellipse 72% 58% at 50% 34%,
-    black 18%,
-    transparent 100%
+.home-live-dot {
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: var(--home-accent);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--home-accent) 42%, transparent);
+  animation: home-live-pulse 2.4s ease-out infinite;
+}
+
+.home-orbit-stage {
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      color-mix(in srgb, var(--home-accent) 11%, transparent),
+      transparent 38%
+    ),
+    var(--home-panel);
+}
+
+.home-orbit-coordinate {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--home-ink) 18%, transparent) 0.7px,
+    transparent 0.8px
   );
-  opacity: 0.075;
+  background-size: 1.2rem 1.2rem;
+  mask-image: radial-gradient(circle at center, black, transparent 74%);
+  opacity: 0.48;
+}
+
+.home-orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border: 1px solid var(--home-line);
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+}
+
+.home-orbit-outer {
+  width: min(82%, 39rem);
+  aspect-ratio: 1;
+}
+
+.home-orbit-middle {
+  width: min(61%, 29rem);
+  aspect-ratio: 1;
+  border-style: dashed;
+  animation: home-orbit-spin 28s linear infinite;
+}
+
+.home-orbit-inner {
+  width: min(35%, 16rem);
+  aspect-ratio: 1;
+  border-color: color-mix(in srgb, var(--home-accent) 54%, transparent);
+}
+
+.home-orbit-axis {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: var(--home-line);
+}
+
+.home-orbit-axis-x {
+  width: min(88%, 42rem);
+  height: 1px;
+  transform: translate(-50%, -50%);
+}
+
+.home-orbit-axis-y {
+  width: 1px;
+  height: min(88%, 42rem);
+  transform: translate(-50%, -50%);
+}
+
+.home-orbit-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--home-accent);
+  background: var(--home-canvas);
+  color: var(--home-ink);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 4rem color-mix(in srgb, var(--home-accent) 18%, transparent);
+}
+
+.home-orbit-node {
+  position: absolute;
+  z-index: 2;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--home-line);
+  background: color-mix(in srgb, var(--home-panel) 84%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  letter-spacing: 0.08em;
+  backdrop-filter: blur(10px);
+}
+
+.home-orbit-node::before {
+  display: inline-block;
+  width: 0.35rem;
+  height: 0.35rem;
+  margin-right: 0.45rem;
+  border-radius: 999px;
+  background: var(--home-accent);
+  content: '';
+}
+
+.home-orbit-node-a {
+  top: 19%;
+  left: 44%;
+}
+
+.home-orbit-node-b {
+  top: 44%;
+  right: 8%;
+}
+
+.home-orbit-node-c {
+  right: 28%;
+  bottom: 14%;
+}
+
+.home-orbit-node-d {
+  top: 49%;
+  left: 8%;
+}
+
+.home-signal-rail {
+  animation: home-signal-marquee 24s linear infinite;
+}
+
+.home-performance-type {
+  -webkit-text-stroke: 1px var(--home-line);
+  color: transparent;
+}
+
+.home-proof-cell:nth-child(2n) {
+  border-right-width: 0;
+}
+
+.home-kinetic-grid {
+  background-image:
+    linear-gradient(var(--home-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--home-line) 1px, transparent 1px);
+  background-size: clamp(3.5rem, 7vw, 7rem) clamp(3.5rem, 7vw, 7rem);
+  mask-image: radial-gradient(circle at center, black 10%, transparent 78%);
+  opacity: 0.4;
+}
+
+.home-kinetic-crosshair {
+  box-shadow:
+    0 0 0 14vw color-mix(in srgb, var(--home-canvas) 18%, transparent),
+    inset 0 0 5rem color-mix(in srgb, var(--home-accent) 5%, transparent);
+}
+
+.home-request-instrument {
+  box-shadow: 0 2.5rem 7rem -4rem var(--home-shadow);
+}
+
+.home-instrument-scan {
+  box-shadow:
+    0 0 0.85rem var(--home-flow-accent),
+    0 0.65rem 3.5rem var(--home-flow-accent-soft);
+  opacity: 0.56;
 }
 
 .home-flow-spotlight {
   background: radial-gradient(
     ellipse 60% 56% at 50% 42%,
-    color-mix(in oklch, var(--home-accent) 13%, transparent),
+    color-mix(in srgb, var(--home-flow-accent) 11%, transparent),
     transparent 72%
   );
 }
@@ -581,22 +765,53 @@ For commercial licensing, please contact support@quantumnous.com
   opacity: 0.58;
 }
 
-.home-metric-card:nth-child(2n) {
-  border-right-width: 0;
-}
-
-.home-metric-card:nth-child(n + 3) {
-  border-bottom-width: 0;
-}
-
 @media (min-width: 640px) {
-  .home-metric-card {
+  .home-proof-cell {
+    border-right-width: 1px;
+  }
+
+  .home-proof-cell:nth-child(2n) {
+    border-right-width: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-proof-cell,
+  .home-proof-cell:nth-child(2n) {
     border-right-width: 1px;
     border-bottom-width: 0;
   }
 
-  .home-metric-card:last-child {
+  .home-proof-cell:last-child {
     border-right-width: 0;
+  }
+}
+
+@keyframes home-live-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--home-accent) 46%, transparent);
+  }
+  72%,
+  100% {
+    box-shadow: 0 0 0 0.55rem transparent;
+  }
+}
+
+@keyframes home-orbit-spin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes home-signal-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
   }
 }
 
@@ -681,7 +896,10 @@ html:has([data-home-page])::-webkit-scrollbar {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .home-terminal-caret {
+  .home-terminal-caret,
+  .home-live-dot,
+  .home-orbit-middle,
+  .home-signal-rail {
     animation: none;
   }
 }

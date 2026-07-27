@@ -20,66 +20,77 @@ import { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AnimateInView } from '@/components/animate-in-view'
-import { cn } from '@/lib/utils'
 
 import { homeLayoutClasses } from '../home-layout'
 
 interface CounterProps {
-  end: number
-  suffix?: string
-  prefix?: string
-  duration?: number
   decimals?: number
+  duration?: number
+  end: number
+  prefix?: string
+  suffix?: string
 }
 
 function Counter(props: CounterProps) {
-  const { end, suffix = '', prefix = '', duration = 1600, decimals = 0 } = props
   const ref = useRef<HTMLSpanElement>(null)
   const startedRef = useRef(false)
+  const decimals = props.decimals ?? 0
+  const duration = props.duration ?? 1600
+  const prefix = props.prefix ?? ''
+  const suffix = props.suffix ?? ''
 
   const formatValue = useCallback(
-    (v: number) =>
-      decimals > 0 ? v.toFixed(decimals) : Math.round(v).toLocaleString(),
+    (value: number) =>
+      decimals > 0
+        ? value.toFixed(decimals)
+        : Math.round(value).toLocaleString(),
     [decimals]
   )
 
   const animate = useCallback(() => {
-    const el = ref.current
-    if (!el) return
+    const element = ref.current
+    if (!element) return
+
     const start = performance.now()
     const step = (now: number) => {
       const progress = Math.min((now - start) / duration, 1)
       const eased = 1 - Math.pow(1 - progress, 3)
-      el.textContent = `${prefix}${formatValue(eased * end)}${suffix}`
-      if (progress < 1) requestAnimationFrame(step)
+      element.textContent = `${prefix}${formatValue(eased * props.end)}${suffix}`
+
+      if (progress < 1) {
+        requestAnimationFrame(step)
+      }
     }
+
     requestAnimationFrame(step)
-  }, [end, duration, prefix, suffix, formatValue])
+  }, [duration, formatValue, prefix, props.end, suffix])
 
   useEffect(() => {
-    const el = ref.current
-    if (!el) return
+    const element = ref.current
+    if (!element) return
 
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
-    if (mq.matches) {
-      el.textContent = `${prefix}${formatValue(end)}${suffix}`
+    const reduceMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches
+    if (reduceMotion) {
+      element.textContent = `${prefix}${formatValue(props.end)}${suffix}`
       return
     }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !startedRef.current) {
-          startedRef.current = true
-          animate()
-          observer.unobserve(el)
-        }
+        if (!entry.isIntersecting || startedRef.current) return
+
+        startedRef.current = true
+        animate()
+        observer.unobserve(element)
       },
-      { threshold: 0.5 }
+      { threshold: 0.45 }
     )
 
-    observer.observe(el)
+    observer.observe(element)
     return () => observer.disconnect()
-  }, [animate, end, prefix, suffix, formatValue])
+  }, [animate, formatValue, prefix, props.end, suffix])
 
   return (
     <span ref={ref} className='tabular-nums'>
@@ -90,9 +101,8 @@ function Counter(props: CounterProps) {
 
 interface StatItem {
   end: number
-  suffix: string
   label: string
-  decimals?: number
+  suffix: string
 }
 
 export function Stats() {
@@ -106,34 +116,61 @@ export function Stats() {
   ]
 
   return (
-    <section className='relative z-20 border-t border-[var(--home-line)] bg-[var(--home-tint)] px-4 py-20 sm:px-6 md:py-28 lg:px-8'>
-      <div className='mx-auto max-w-[80rem]'>
-        <AnimateInView className='grid gap-8 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:items-end md:gap-16'>
+    <section
+      data-home-section='performance'
+      className='relative z-20 overflow-hidden bg-[var(--home-tint)] py-24 md:py-36'
+    >
+      <div
+        aria-hidden='true'
+        className='home-performance-type absolute -top-[0.18em] -right-[0.06em] font-mono text-[clamp(8rem,28vw,31rem)] leading-none font-semibold tracking-[-0.1em] text-[var(--home-line)] select-none'
+      >
+        99
+      </div>
+
+      <div className='relative mx-auto max-w-[90rem] px-4 sm:px-6 lg:px-8'>
+        <AnimateInView className='grid gap-10 md:grid-cols-[minmax(0,0.7fr)_minmax(24rem,1.3fr)] md:items-end md:gap-20'>
           <div>
-            <p className='font-mono text-[10px] font-semibold tracking-[0.18em] text-[var(--home-muted)] uppercase'>
-              {t('High Performance')}
+            <p className='font-mono text-[10px] font-semibold tracking-[0.22em] text-[var(--home-muted)] uppercase'>
+              02 — {t('High Performance')}
             </p>
-            <h2 className='mt-4 text-3xl leading-[1.02] font-semibold tracking-[-0.035em] sm:text-4xl md:text-5xl'>
-              {t('Powerful API Management Platform')}
-            </h2>
+            <div className='mt-8 flex items-center gap-4 font-mono text-xs'>
+              <span className='home-live-dot' aria-hidden='true' />
+              <span>NETWORK / ONLINE</span>
+            </div>
           </div>
-          <p className='max-w-2xl text-base leading-relaxed text-[var(--home-muted)] md:justify-self-end md:text-lg'>
-            {t('Support for high concurrency with automatic load balancing')}
-          </p>
+
+          <h2 className='max-w-[13ch] text-[clamp(3rem,7.4vw,7.6rem)] leading-[0.9] font-semibold tracking-[-0.065em] md:justify-self-end'>
+            {t('Powerful API Management Platform')}
+          </h2>
         </AnimateInView>
 
-        <div className={cn('mt-14', homeLayoutClasses.metrics)}>
-          {stats.map((s) => (
+        <AnimateInView
+          animation='fade-up'
+          className='mt-16 max-w-2xl text-base leading-relaxed text-[var(--home-muted)] md:mt-24 md:text-xl'
+          delay={100}
+        >
+          {t('Support for high concurrency with automatic load balancing')}
+        </AnimateInView>
+
+        <div className={`mt-16 md:mt-24 ${homeLayoutClasses.metrics}`}>
+          {stats.map((stat, index) => (
             <div
-              key={s.label}
-              className='home-metric-card flex min-h-36 flex-col justify-between border-r border-b border-[var(--home-line)] p-5 sm:min-h-44 sm:p-7'
+              key={stat.label}
+              className='home-proof-cell group relative flex min-h-64 flex-col justify-between overflow-hidden border-r border-b border-[var(--home-line)] px-5 py-7 sm:min-h-72 sm:px-7 sm:py-9'
             >
-              <span className='text-4xl font-semibold tracking-[-0.045em] sm:text-5xl'>
-                <Counter end={s.end} suffix={s.suffix} decimals={s.decimals} />
+              <span className='font-mono text-[9px] tracking-[0.18em] text-[var(--home-muted)]'>
+                0{index + 1} / 04
               </span>
-              <span className='max-w-32 text-xs leading-relaxed text-[var(--home-muted)]'>
-                {s.label}
+              <span className='relative z-10 text-[clamp(3.8rem,8vw,7.5rem)] leading-none font-semibold tracking-[-0.075em]'>
+                <Counter end={stat.end} suffix={stat.suffix} />
               </span>
+              <span className='relative z-10 max-w-36 text-xs leading-relaxed text-[var(--home-muted)]'>
+                {stat.label}
+              </span>
+              <div
+                aria-hidden='true'
+                className='absolute right-0 bottom-0 h-px w-0 bg-[var(--home-accent)] transition-[width] duration-700 group-hover:w-full'
+              />
             </div>
           ))}
         </div>
