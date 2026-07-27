@@ -16,24 +16,25 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { SidebarTrigger } from '@/components/ui/sidebar'
-import { cn } from '@/lib/utils'
+import assert from 'node:assert/strict'
+import test from 'node:test'
 
-type HeaderProps = React.HTMLAttributes<HTMLElement>
+import { renderToStaticMarkup } from 'react-dom/server'
 
-export function Header({ className, children, ...props }: HeaderProps) {
-  return (
-    <header
-      className={cn(
-        'group-data-[state=collapsed]/sidebar-wrapper:bg-app-header-collapsed sticky top-0 z-40 h-[var(--app-header-height,3rem)] w-full shrink-0 bg-transparent transition-colors',
-        className
-      )}
-      {...props}
-    >
-      <div className='flex h-full items-center gap-1.5 px-2 sm:gap-2 sm:px-3'>
-        <SidebarTrigger variant='ghost' className='size-8' />
-        {children}
-      </div>
-    </header>
+import { SidebarProvider } from '@/components/ui/sidebar'
+
+import { Header } from '../header'
+
+test('collapsed sidebar exposes its state and darkens the application header', () => {
+  const markup = renderToStaticMarkup(
+    <SidebarProvider defaultOpen={false}>
+      <Header>Tools</Header>
+    </SidebarProvider>
   )
-}
+
+  assert.match(markup, /data-slot="sidebar-wrapper"[^>]*data-state="collapsed"/)
+  assert.match(
+    markup,
+    /group-data-\[state=collapsed\]\/sidebar-wrapper:bg-app-header-collapsed/
+  )
+})

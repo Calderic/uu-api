@@ -83,6 +83,7 @@ For commercial licensing, please contact support@quantumnous.com
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-app-header-collapsed: var(--app-header-collapsed);
 
   /* Semantic surfaces make the intended layer explicit in both Tailwind
    * utilities and design-tool token exports. */
@@ -122,6 +123,7 @@ For commercial licensing, please contact support@quantumnous.com
   /* Shape: 4 / 6 / 8 / 12 / 16 / 20 / 24px at the default radius. */
   --radius: 0.5rem;
   --app-header-height: 3rem;
+  --app-header-collapsed: var(--background);
   /* Motion: short, direct feedback for a tool that is used repeatedly. */
   --motion-duration-fast: 120ms;
   --motion-duration-normal: 180ms;
@@ -230,19 +232,20 @@ For commercial licensing, please contact support@quantumnous.com
 .dark {
   /* Graphite surfaces stay chromatically neutral while canvas → container →
    * overlay increases by a quiet, visible step. */
-  --background: oklch(0.16 0 0);
-  --foreground: oklch(0.955 0 0);
-  --card: oklch(0.2 0 0);
-  --card-foreground: oklch(0.955 0 0);
-  --popover: oklch(0.22 0 0);
-  --popover-foreground: oklch(0.955 0 0);
+  --background: oklch(0.23 0 0);
+  --app-header-collapsed: oklch(0.16 0 0);
+  --foreground: oklch(0.965 0 0);
+  --card: oklch(0.285 0 0);
+  --card-foreground: oklch(0.965 0 0);
+  --popover: oklch(0.31 0 0);
+  --popover-foreground: oklch(0.965 0 0);
   --primary: #428faf;
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.255 0 0);
-  --secondary-foreground: oklch(0.9 0 0);
-  --muted: oklch(0.24 0 0);
-  --muted-foreground: oklch(0.74 0 0);
-  --accent: oklch(0.275 0 0);
+  --secondary: oklch(0.31 0 0);
+  --secondary-foreground: oklch(0.92 0 0);
+  --muted: oklch(0.265 0 0);
+  --muted-foreground: oklch(0.77 0 0);
+  --accent: oklch(0.33 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.985 0 0);
@@ -254,24 +257,24 @@ For commercial licensing, please contact support@quantumnous.com
   --info-foreground: oklch(0.145 0 0);
   --neutral: oklch(0.76 0 0);
   --neutral-foreground: oklch(0.155 0 0);
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 18%);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 16%);
   --ring: oklch(0.554 0.148 250.726);
   --chart-1: oklch(0.76 0.14 250);
   --chart-2: oklch(0.76 0.13 200);
   --chart-3: oklch(0.76 0.13 285);
   --chart-4: oklch(0.75 0.16 325);
   --chart-5: oklch(0.76 0.14 155);
-  --sidebar: oklch(0.15 0 0);
-  --sidebar-foreground: oklch(0.95 0 0);
+  --sidebar: oklch(0.23 0 0);
+  --sidebar-foreground: oklch(0.955 0 0);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.235 0 0);
-  --sidebar-accent-foreground: oklch(0.955 0 0);
-  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-accent: oklch(0.33 0 0);
+  --sidebar-accent-foreground: oklch(0.97 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.7 0.17 250);
-  --skeleton-base: oklch(0.26 0 0);
-  --skeleton-highlight: oklch(0.33 0 0);
+  --skeleton-base: oklch(0.31 0 0);
+  --skeleton-highlight: oklch(0.37 0 0);
   --ui-shadow-color: oklch(0 0 0 / 32%);
   --elevation-1: 0 1px 2px var(--ui-shadow-color), 0 0 0 1px oklch(1 0 0 / 2%);
   --elevation-2:

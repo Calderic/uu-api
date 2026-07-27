@@ -14,12 +14,16 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
-  build-and-push:
-    name: Build and push private multi-arch image
+  build_amd64:
+    name: Build and push linux/amd64 by digest
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+      image_name: ${{ steps.image.outputs.name }}
+      image_version: ${{ steps.image.outputs.version }}
 
     steps:
       - name: Check out repository
@@ -41,9 +45,6 @@ jobs:
           echo "$version" > VERSION
           echo "name=$image" >> "$GITHUB_OUTPUT"
           echo "version=$version" >> "$GITHUB_OUTPUT"
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
@@ -68,26 +69,156 @@ jobs:
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
 
-      - name: Build and push image
+      - name: Build and push linux/amd64
         id: build
         uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
           context: .
           file: ./Dockerfile
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          platforms: linux/amd64
+          outputs: type=image,name=${{ steps.image.outputs.name }},push-by-digest=true,name-canonical=true,push=true
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=private-amd64
+          cache-to: type=gha,scope=private-amd64,mode=max
           provenance: mode=max
           sbom: true
 
+  build_arm64:
+    name: Build and push linux/arm64 by digest
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Resolve image name and version
+        id: image
+        env:
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          repository=$(printf '%s' "$REPOSITORY" | tr '[:upper:]' '[:lower:]')
+          image="${REGISTRY}/${repository}-private"
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            version="$GITHUB_REF_NAME"
+          else
+            version="main-${GITHUB_SHA::7}"
+          fi
+
+          echo "$version" > VERSION
+          echo "name=$image" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@c99871dec2022cc055c062a10cc1a1310835ceb4 # v4.3.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract image metadata
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: ${{ steps.image.outputs.name }}
+          tags: |
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+            type=raw,value=${{ steps.image.outputs.version }}
+            type=ref,event=branch
+            type=sha,prefix=sha-
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+
+      - name: Build and push linux/arm64
+        id: build
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/arm64
+          outputs: type=image,name=${{ steps.image.outputs.name }},push-by-digest=true,name-canonical=true,push=true
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=private-arm64
+          cache-to: type=gha,scope=private-arm64,mode=max
+          provenance: mode=max
+          sbom: true
+
+  merge:
+    name: Create private multi-arch image
+    needs:
+      - build_amd64
+      - build_arm64
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@c99871dec2022cc055c062a10cc1a1310835ceb4 # v4.3.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract image metadata
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: ${{ needs.build_amd64.outputs.image_name }}
+          tags: |
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+            type=raw,value=${{ needs.build_amd64.outputs.image_version }}
+            type=ref,event=branch
+            type=sha,prefix=sha-
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+
+      - name: Create and push multi-arch image
+        id: merge
+        env:
+          AMD64_DIGEST: ${{ needs.build_amd64.outputs.digest }}
+          ARM64_DIGEST: ${{ needs.build_arm64.outputs.digest }}
+          IMAGE_NAME: ${{ needs.build_amd64.outputs.image_name }}
+        run: |
+          mapfile -t tags < <(jq -r '.tags[]' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          tag_args=()
+          for tag in "${tags[@]}"; do
+            tag_args+=(-t "$tag")
+          done
+
+          docker buildx imagetools create \
+            --metadata-file "$RUNNER_TEMP/manifest-metadata.json" \
+            "${tag_args[@]}" \
+            "$IMAGE_NAME@$AMD64_DIGEST" \
+            "$IMAGE_NAME@$ARM64_DIGEST"
+
+          image_digest=$(jq -r '
+            ."containerimage.digest" //
+            ."containerimage.descriptor".digest //
+            empty
+          ' "$RUNNER_TEMP/manifest-metadata.json")
+          if [ -z "$image_digest" ]; then
+            echo "::error::Unable to resolve the multi-arch image digest"
+            exit 1
+          fi
+          echo "digest=$image_digest" >> "$GITHUB_OUTPUT"
+
       - name: Write image summary
         env:
-          IMAGE_NAME: ${{ steps.image.outputs.name }}
-          IMAGE_VERSION: ${{ steps.image.outputs.version }}
-          IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
+          IMAGE_NAME: ${{ needs.build_amd64.outputs.image_name }}
+          IMAGE_VERSION: ${{ needs.build_amd64.outputs.image_version }}
+          IMAGE_DIGEST: ${{ steps.merge.outputs.digest }}
         run: |
           {
             echo "### Private GHCR image"
