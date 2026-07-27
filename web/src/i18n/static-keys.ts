@@ -116,6 +116,7 @@ export const STATIC_I18N_KEYS = [
   'Failed to update user',
   'Failed to delete user',
   'No user selected',
+  'Google ID',
 
   // Redemption codes
   'Unused',

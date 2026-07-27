@@ -25,6 +25,7 @@ import { clearAuthentication, isAuthBundle } from '@/lib/api'
 import { createOAuthFlow, logout, telegramLogin } from '../api'
 import {
   buildGitHubOAuthUrl,
+  buildGoogleOAuthUrl,
   buildDiscordOAuthUrl,
   buildOIDCOAuthUrl,
   buildLinuxDOOAuthUrl,
@@ -116,6 +117,23 @@ export function useOAuthLogin(
       window.open(url, '_self')
     } catch {
       toast.error(t('Failed to start Discord login'))
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleGoogleLogin = async () => {
+    if (!status?.google_client_id) return
+
+    setIsLoading(true)
+    try {
+      await resetSession()
+      const state = await createOAuthFlow('google', 'login')
+
+      const url = buildGoogleOAuthUrl(status.google_client_id, state)
+      window.open(url, '_self')
+    } catch {
+      toast.error(t('Failed to start Google login'))
     } finally {
       setIsLoading(false)
     }
@@ -238,6 +256,7 @@ export function useOAuthLogin(
     isTelegramDialogOpen,
     isTelegramPending,
     handleGitHubLogin,
+    handleGoogleLogin,
     handleDiscordLogin,
     handleOIDCLogin,
     handleLinuxDOLogin,

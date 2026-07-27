@@ -29,7 +29,7 @@ import {
 } from 'lucide-react'
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { SiGithub, SiDiscord } from 'react-icons/si'
+import { SiGithub, SiGoogle, SiDiscord } from 'react-icons/si'
 import { toast } from 'sonner'
 
 import { ConfirmDialog } from '@/components/confirm-dialog'
@@ -75,6 +75,7 @@ interface BindingItem {
 
 interface StatusInfo {
   github_oauth?: boolean
+  google_oauth?: boolean
   discord_oauth?: boolean
   oidc_enabled?: boolean
   wechat_login?: boolean
@@ -114,6 +115,13 @@ const BUILTIN_BINDINGS: ReadonlyArray<{
     label: 'Discord',
     icon: <SiDiscord className='h-4 w-4' />,
     statusKey: 'discord_oauth',
+  },
+  {
+    key: 'google',
+    field: 'google_id',
+    label: 'Google',
+    icon: <SiGoogle className='h-4 w-4' />,
+    statusKey: 'google_oauth',
   },
   {
     key: 'wechat_id',

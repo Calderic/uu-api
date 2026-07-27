@@ -158,6 +158,15 @@ func UpdateOption(c *gin.Context) {
 			})
 			return
 		}
+	case "google.enabled":
+		googleSettings := system_setting.GetGoogleOAuthSettings()
+		if option.Value == "true" && (googleSettings.ClientId == "" || googleSettings.ClientSecret == "") {
+			c.JSON(http.StatusOK, gin.H{
+				"success": false,
+				"message": "无法启用 Google OAuth，请先填入 Google Client ID 以及 Google Client Secret！",
+			})
+			return
+		}
 	case "discord.enabled":
 		if option.Value == "true" && system_setting.GetDiscordSettings().ClientId == "" {
 			c.JSON(http.StatusOK, gin.H{

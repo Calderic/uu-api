@@ -19,7 +19,7 @@ For commercial licensing, please contact support@quantumnous.com
 import { Mail, Shield, Send, Link2, Unlink } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { SiGithub, SiWechat, SiLinux } from 'react-icons/si'
+import { SiGithub, SiGoogle, SiWechat, SiLinux } from 'react-icons/si'
 import { toast } from 'sonner'
 
 import { IconDiscord } from '@/assets/brand-icons'
@@ -40,6 +40,7 @@ import { api } from '@/lib/api'
 import {
   buildDiscordOAuthUrl,
   buildGitHubOAuthUrl,
+  buildGoogleOAuthUrl,
   buildLinuxDOOAuthUrl,
   buildOIDCOAuthUrl,
 } from '@/lib/oauth'
@@ -338,6 +339,22 @@ export function AccountBindingsTab({
           if (clientId) {
             void startOAuthBinding('discord', (state) =>
               buildDiscordOAuthUrl(clientId, state)
+            )
+          }
+        },
+      },
+      {
+        id: 'google',
+        label: t('Google'),
+        icon: SiGoogle,
+        value: profile.google_id,
+        isBound: Boolean(profile.google_id),
+        isEnabled: status?.google_oauth || false,
+        onBind: () => {
+          const clientId = status?.google_client_id
+          if (clientId) {
+            void startOAuthBinding('google', (state) =>
+              buildGoogleOAuthUrl(clientId, state)
             )
           }
         },
