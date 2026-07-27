@@ -16,23 +16,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-// ============================================================================
-// Home Page Types
-// ============================================================================
-
-/**
- * Response from home page content API
- */
-export interface HomePageContentResponse {
-  success: boolean
-  message?: string
-  data?: string
-}
-
-/**
- * Home page content result from hook
- */
-export interface HomePageContentResult {
-  content: string
-  isUrl: boolean
-}
+export const publicHeaderLayoutClasses = {
+  brandLink: 'group flex shrink-0 items-center gap-1.5',
+} as const

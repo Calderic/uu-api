@@ -16,23 +16,14 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-// ============================================================================
-// Home Page Types
-// ============================================================================
+import assert from 'node:assert/strict'
+import test from 'node:test'
 
-/**
- * Response from home page content API
- */
-export interface HomePageContentResponse {
-  success: boolean
-  message?: string
-  data?: string
-}
+import { publicHeaderLayoutClasses } from '../public-header-layout'
 
-/**
- * Home page content result from hook
- */
-export interface HomePageContentResult {
-  content: string
-  isUrl: boolean
-}
+test('public header keeps the logo mark close to the site name', () => {
+  const brandClasses = publicHeaderLayoutClasses.brandLink.split(' ')
+
+  assert.ok(brandClasses.includes('gap-1.5'))
+  assert.ok(brandClasses.includes('items-center'))
+})

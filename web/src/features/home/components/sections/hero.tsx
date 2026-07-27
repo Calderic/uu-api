@@ -23,6 +23,7 @@ import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react'
 import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { SplitText } from '@/components/split-text'
 import { Button } from '@/components/ui/button'
 import { useStatus } from '@/hooks/use-status'
 import { useSystemConfig } from '@/hooks/use-system-config'
@@ -36,6 +37,9 @@ interface HeroProps {
   className?: string
   isAuthenticated?: boolean
 }
+
+const HERO_TITLE_FROM = { opacity: 0, y: 48 }
+const HERO_TITLE_TO = { opacity: 1, y: 0 }
 
 export function Hero(props: HeroProps) {
   const { t } = useTranslation()
@@ -89,7 +93,21 @@ export function Hero(props: HeroProps) {
 
         <div className={cn('mt-7 sm:mt-9', homeLayoutClasses.heroContent)}>
           <h1 className='max-w-[48rem] text-[clamp(3.35rem,7.5vw,6rem)] leading-[0.9] font-semibold tracking-[-0.035em] text-balance'>
-            <span className='block'>{systemName}</span>
+            <SplitText
+              tag='span'
+              text={systemName}
+              className='block'
+              delay={38}
+              duration={0.72}
+              ease='power3.out'
+              splitType='chars'
+              from={HERO_TITLE_FROM}
+              to={HERO_TITLE_TO}
+              threshold={0.1}
+              rootMargin='0px'
+              textAlign='left'
+              disabled={Boolean(reducedMotion)}
+            />
             <span className='mt-3 block text-[0.58em] leading-none tracking-[-0.02em] text-[var(--home-muted-strong)]'>
               {t('One endpoint for every model')}
             </span>

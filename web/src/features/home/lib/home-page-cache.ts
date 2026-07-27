@@ -16,23 +16,38 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-// ============================================================================
-// Home Page Types
-// ============================================================================
+const STORAGE_KEY = 'home_page_content'
 
-/**
- * Response from home page content API
- */
-export interface HomePageContentResponse {
-  success: boolean
-  message?: string
-  data?: string
+export type HomePageContentStorage = Pick<
+  Storage,
+  'getItem' | 'removeItem' | 'setItem'
+>
+
+export function readCachedHomePageContent(
+  storage?: HomePageContentStorage
+): string {
+  if (!storage) return ''
+
+  try {
+    return storage.getItem(STORAGE_KEY) ?? ''
+  } catch {
+    return ''
+  }
 }
 
-/**
- * Home page content result from hook
- */
-export interface HomePageContentResult {
+export function writeCachedHomePageContent(
+  storage: HomePageContentStorage | undefined,
   content: string
-  isUrl: boolean
+) {
+  if (!storage) return
+
+  try {
+    if (content) {
+      storage.setItem(STORAGE_KEY, content)
+    } else {
+      storage.removeItem(STORAGE_KEY)
+    }
+  } catch {
+    // Storage can be unavailable in private or restricted browser contexts.
+  }
 }
