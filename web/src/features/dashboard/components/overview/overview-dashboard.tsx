@@ -22,14 +22,11 @@ import {
   ArrowRight,
   BookOpen,
   Check,
-  ChevronDown,
-  ChevronUp,
   Circle,
   Copy,
   CreditCard,
   FileText,
   KeyRound,
-  ListChecks,
   RadioTower,
   ShieldCheck,
   TerminalSquare,
@@ -64,6 +61,7 @@ import { AnnouncementsPanel } from './announcements-panel'
 import { ApiInfoPanel } from './api-info-panel'
 import { FAQPanel } from './faq-panel'
 import { PerformanceHealthPanel } from './performance-health-panel'
+import { SetupGuideToggle } from './setup-guide-toggle'
 import { SummaryCards } from './summary-cards'
 import { UptimePanel } from './uptime-panel'
 
@@ -629,11 +627,15 @@ export function OverviewDashboard() {
                   <div className='flex flex-wrap items-start justify-between gap-3'>
                     <div className='flex max-w-2xl flex-col gap-1'>
                       <div className='text-muted-foreground flex items-center gap-2 text-xs font-medium tracking-wider uppercase'>
-                        <ListChecks className='size-3.5' aria-hidden='true' />
-                        {t('Get started')}
+                        <SetupGuideToggle
+                          expanded
+                          label={t('Hide setup guide')}
+                          onToggle={handleSetupGuideToggle}
+                        />
+                        {t('Quick start')}
                       </div>
-                      <h3 className='text-xl font-semibold tracking-tight sm:text-2xl'>
-                        {t('Build on your API gateway in minutes')}
+                      <h3 className='text-xl font-semibold tracking-tight sm:text-2xl sm:whitespace-nowrap'>
+                        {t('API gateway, ready in minutes')}
                       </h3>
                       <p className='text-muted-foreground max-w-xl text-sm leading-relaxed'>
                         {t(
@@ -641,20 +643,10 @@ export function OverviewDashboard() {
                         )}
                       </p>
                     </div>
-                    <div className='flex flex-wrap items-center gap-2'>
-                      <Button
-                        variant='outline'
-                        size='sm'
-                        onClick={handleSetupGuideToggle}
-                      >
-                        <ChevronUp data-icon='inline-start' />
-                        {t('Hide setup guide')}
-                      </Button>
-                      <Button size='sm' render={<Link to='/keys' />}>
-                        <KeyRound data-icon='inline-start' />
-                        {t('Create API Key')}
-                      </Button>
-                    </div>
+                    <Button size='sm' render={<Link to='/keys' />}>
+                      <KeyRound data-icon='inline-start' />
+                      {t('Create API Key')}
+                    </Button>
                   </div>
 
                   <ol className='bg-background/45 rounded-2xl border p-2 backdrop-blur'>
@@ -702,9 +694,11 @@ export function OverviewDashboard() {
               <SetupGuideBackdrop compact />
               <div className='relative flex flex-wrap items-center justify-between gap-3'>
                 <div className='flex min-w-0 items-center gap-3'>
-                  <span className='bg-background/70 flex size-9 shrink-0 items-center justify-center rounded-xl border shadow-xs'>
-                    <Check className='text-success size-4' aria-hidden='true' />
-                  </span>
+                  <SetupGuideToggle
+                    expanded={false}
+                    label={t('Show setup guide')}
+                    onToggle={handleSetupGuideToggle}
+                  />
                   <div className='min-w-0'>
                     <div className='flex items-center gap-2'>
                       <h3 className='truncate text-sm font-semibold'>
@@ -733,15 +727,6 @@ export function OverviewDashboard() {
                   {visibleQuickActions.map((action) => (
                     <CompactQuickAction key={action.title} action={action} />
                   ))}
-                  <Button
-                    variant='outline'
-                    size='sm'
-                    className='bg-background/70 h-8 min-w-28'
-                    onClick={handleSetupGuideToggle}
-                  >
-                    <ChevronDown data-icon='inline-start' />
-                    {t('Show setup guide')}
-                  </Button>
                 </div>
               </div>
             </div>

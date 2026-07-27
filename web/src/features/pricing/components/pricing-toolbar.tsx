@@ -54,7 +54,9 @@ import {
   type ViewMode,
 } from '../constants'
 import type { PricingModel, PricingVendor, TokenUnit } from '../types'
+import { pricingLayoutClasses } from './pricing-layout'
 import { PricingSidebar } from './pricing-sidebar'
+import { SearchBar } from './search-bar'
 
 type SegmentOption = {
   value: string
@@ -64,8 +66,10 @@ type SegmentOption = {
 }
 
 export interface PricingToolbarProps {
-  filteredCount: number
-  totalCount?: number
+  enabledModelCount: number
+  searchInput: string
+  onSearchInputChange: (value: string) => void
+  onClearSearch: () => void
   sortBy: string
   onSortChange: (value: string) => void
   tokenUnit: TokenUnit
@@ -134,7 +138,7 @@ function SegmentedControl(props: {
 
         return (
           <Tooltip key={option.value}>
-            <TooltipTrigger render={button}></TooltipTrigger>
+            <TooltipTrigger render={button} />
             <TooltipContent side='bottom' className='text-xs'>
               {option.tooltip}
             </TooltipContent>
@@ -167,8 +171,8 @@ export function PricingToolbar(props: PricingToolbarProps) {
 
   return (
     <div className='rounded-xl border p-3'>
-      <div className='flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between'>
-        <div className='flex items-center gap-2'>
+      <div className={pricingLayoutClasses.toolbar}>
+        <div className='flex shrink-0 items-center gap-2'>
           <Button
             type='button'
             variant='outline'
@@ -187,18 +191,23 @@ export function PricingToolbar(props: PricingToolbarProps) {
 
           <div className='text-muted-foreground flex items-baseline gap-1 text-sm'>
             <span className='text-foreground font-semibold tabular-nums'>
-              {props.filteredCount.toLocaleString()}
+              {props.enabledModelCount.toLocaleString()}
             </span>
-            <span>{props.filteredCount === 1 ? t('model') : t('models')}</span>
-            {props.hasActiveFilters && props.totalCount && (
-              <span className='text-muted-foreground/60 text-xs'>
-                / {props.totalCount.toLocaleString()}
-              </span>
-            )}
+            <span>
+              {props.enabledModelCount === 1 ? t('model') : t('models')}
+            </span>
           </div>
         </div>
 
-        <div className='flex flex-wrap items-center gap-2'>
+        <SearchBar
+          value={props.searchInput}
+          onChange={props.onSearchInputChange}
+          onClear={props.onClearSearch}
+          placeholder={t('Search model name, provider, endpoint, or tag...')}
+          className={pricingLayoutClasses.toolbarSearch}
+        />
+
+        <div className={pricingLayoutClasses.toolbarActions}>
           <div className='hidden items-center gap-2 sm:flex'>
             <SegmentedControl
               options={[
