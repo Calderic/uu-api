@@ -19,16 +19,92 @@ For commercial licensing, please contact support@quantumnous.com
 import { Link } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 
+import { LanguageSwitcher } from '@/components/language-switcher'
+import { ThemeSwitch } from '@/components/theme-switch'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useTheme } from '@/context/theme-provider'
 import { useSystemConfig } from '@/hooks/use-system-config'
+
+import { splitAuthLayoutClasses } from './auth-layout-styles'
+import { getAuthVisualSource } from './auth-visual'
 
 type AuthLayoutProps = {
   children: React.ReactNode
+  variant?: 'default' | 'split'
+  visualSrc?: string
+  darkVisualSrc?: string
 }
 
-export function AuthLayout({ children }: AuthLayoutProps) {
+export function AuthLayout({
+  children,
+  variant = 'default',
+  visualSrc,
+  darkVisualSrc,
+}: AuthLayoutProps) {
   const { t } = useTranslation()
+  const { resolvedTheme } = useTheme()
   const { systemName, logo, loading } = useSystemConfig()
+
+  if (variant === 'split' && visualSrc) {
+    const activeVisualSrc = getAuthVisualSource(
+      visualSrc,
+      darkVisualSrc,
+      resolvedTheme
+    )
+
+    return (
+      <main className={splitAuthLayoutClasses.root}>
+        <div className={splitAuthLayoutClasses.shell}>
+          <section className={splitAuthLayoutClasses.panel}>
+            <header className={splitAuthLayoutClasses.header}>
+              <Link
+                to='/'
+                className='flex min-w-0 items-center gap-2.5 transition-opacity hover:opacity-80'
+              >
+                <div className='relative size-8 shrink-0'>
+                  {loading ? (
+                    <Skeleton className='absolute inset-0 rounded-full' />
+                  ) : (
+                    <img
+                      src={logo}
+                      alt={t('Logo')}
+                      className='size-8 rounded-full object-cover'
+                    />
+                  )}
+                </div>
+                {loading ? (
+                  <Skeleton className='h-5 w-24' />
+                ) : (
+                  <h1 className='truncate text-lg font-semibold'>
+                    {systemName}
+                  </h1>
+                )}
+              </Link>
+              <div className='flex shrink-0 items-center gap-1'>
+                <LanguageSwitcher />
+                <ThemeSwitch />
+              </div>
+            </header>
+
+            <div className={splitAuthLayoutClasses.content}>
+              <div className={splitAuthLayoutClasses.form}>{children}</div>
+            </div>
+          </section>
+
+          <aside className={splitAuthLayoutClasses.visual} aria-hidden='true'>
+            <img
+              src={activeVisualSrc}
+              alt=''
+              className={splitAuthLayoutClasses.image}
+              decoding='async'
+              fetchPriority='high'
+            />
+            <div className='pointer-events-none absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-white/5' />
+          </aside>
+        </div>
+      </main>
+    )
+  }
 
   return (
     <div className='relative grid h-svh max-w-none'>

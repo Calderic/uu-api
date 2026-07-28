@@ -31,34 +31,45 @@ export function SignIn() {
   const { status } = useStatus()
 
   return (
-    <AuthLayout>
-      <div className='w-full space-y-8'>
-        <div className='space-y-2'>
-          <h2 className='text-center text-2xl font-semibold tracking-tight sm:text-left'>
-            {t('Sign in')}
+    <AuthLayout
+      variant='split'
+      visualSrc='/login_banner.jpg'
+      darkVisualSrc='/login_banner_dark.jpg'
+    >
+      <div className='flex w-full flex-col gap-7'>
+        <div className='flex flex-col gap-2.5'>
+          <h2 className='flex items-center gap-2 text-3xl font-semibold tracking-tight'>
+            {t('Welcome back!')}
+            <span aria-hidden='true'>👋</span>
           </h2>
+          <p className='text-muted-foreground max-w-sm text-sm leading-6'>
+            {t('One account connects all AI services')}
+          </p>
+        </div>
+
+        <UserAuthForm redirectTo={redirect} />
+
+        <div className='flex flex-col gap-6'>
           {!status?.self_use_mode_enabled &&
             status?.register_enabled !== false && (
-              <p className='text-muted-foreground text-left text-sm sm:text-base'>
+              <p className='text-muted-foreground text-center text-sm'>
                 {t("Don't have an account?")}{' '}
                 <Link
                   to='/sign-up'
-                  className='hover:text-primary font-medium underline underline-offset-4'
+                  className='text-foreground font-medium underline underline-offset-4 transition-opacity hover:opacity-70'
                 >
                   {t('Sign up')}
                 </Link>
                 .
               </p>
             )}
+
+          <TermsFooter
+            variant='sign-in'
+            status={status}
+            className='text-center'
+          />
         </div>
-
-        <UserAuthForm redirectTo={redirect} />
-
-        <TermsFooter
-          variant='sign-in'
-          status={status}
-          className='text-center'
-        />
       </div>
     </AuthLayout>
   )

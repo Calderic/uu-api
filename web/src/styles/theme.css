@@ -84,6 +84,11 @@ For commercial licensing, please contact support@quantumnous.com
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-app-header-collapsed: var(--app-header-collapsed);
+  --color-auth-backdrop: var(--auth-backdrop);
+  --color-auth-panel: var(--auth-panel);
+  --color-auth-panel-foreground: var(--auth-panel-foreground);
+  --color-auth-field: var(--auth-field);
+  --color-auth-border: var(--auth-border);
 
   /* Semantic surfaces make the intended layer explicit in both Tailwind
    * utilities and design-tool token exports. */
@@ -154,6 +159,11 @@ For commercial licensing, please contact support@quantumnous.com
    * in theme-presets.css. Default mirrors `--font-sans` so behavior is
    * identical when no font preference is set. */
   --font-body: var(--font-sans);
+  --auth-backdrop: oklch(0.925 0.005 250);
+  --auth-panel: oklch(0.995 0.002 250);
+  --auth-panel-foreground: oklch(0.18 0.006 255);
+  --auth-field: oklch(0.965 0.004 250);
+  --auth-border: oklch(0.875 0.008 250);
   --background: #f7f7f7;
   --foreground: oklch(0.18 0.006 255);
   --card: oklch(0.998 0.001 255);
@@ -232,6 +242,11 @@ For commercial licensing, please contact support@quantumnous.com
 .dark {
   /* Graphite surfaces stay chromatically neutral while canvas → container →
    * overlay increases by a quiet, visible step. */
+  --auth-backdrop: oklch(0.145 0.012 255);
+  --auth-panel: oklch(0.205 0.012 255);
+  --auth-panel-foreground: oklch(0.94 0.004 255);
+  --auth-field: oklch(0.245 0.012 255);
+  --auth-border: oklch(0.335 0.012 255);
   --background: oklch(0.23 0 0);
   --app-header-collapsed: oklch(0.16 0 0);
   --foreground: oklch(0.965 0 0);

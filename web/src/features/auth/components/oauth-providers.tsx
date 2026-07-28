@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { SiGoogle } from 'react-icons/si'
+import { FcGoogle } from 'react-icons/fc'
 
 import {
   IconDiscord,
@@ -28,6 +28,7 @@ import {
   IconWeChat,
 } from '@/assets/brand-icons'
 import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 
 import { useOAuthLogin } from '../hooks/use-oauth-login'
@@ -41,6 +42,9 @@ type OAuthProvidersProps = {
   onWeChatLogin?: () => void
   isWeChatLoading?: boolean
   redirectTo?: string
+  dividerPosition?: 'before' | 'after' | 'none'
+  dividerLabel?: string
+  buttonClassName?: string
 }
 
 type ProviderButton = {
@@ -58,6 +62,9 @@ export function OAuthProviders({
   onWeChatLogin,
   isWeChatLoading = false,
   redirectTo,
+  dividerPosition = 'before',
+  dividerLabel,
+  buttonClassName,
 }: OAuthProvidersProps) {
   const { t } = useTranslation()
   const {
@@ -104,7 +111,7 @@ export function OAuthProviders({
       key: 'google',
       label: t('Continue with Google'),
       onClick: handleGoogleLogin,
-      icon: <SiGoogle className='h-4 w-4' />,
+      icon: <FcGoogle data-icon='inline-start' />,
     })
   }
 
@@ -157,19 +164,20 @@ export function OAuthProviders({
 
   if (providerButtons.length === 0) return null
 
+  const divider = (
+    <div className='flex items-center gap-3'>
+      <Separator className='flex-1' />
+      <span className='text-muted-foreground shrink-0 text-xs'>
+        {dividerLabel ?? t('Or continue with')}
+      </span>
+      <Separator className='flex-1' />
+    </div>
+  )
+
   return (
     <>
-      <div className={cn('space-y-3', className)}>
-        <div className='relative'>
-          <div className='absolute inset-0 flex items-center'>
-            <span className='w-full border-t' />
-          </div>
-          <div className='relative flex justify-center text-xs uppercase'>
-            <span className='bg-background text-muted-foreground px-2'>
-              {t('Or continue with')}
-            </span>
-          </div>
-        </div>
+      <div className={cn('flex flex-col gap-4', className)}>
+        {dividerPosition === 'before' && divider}
 
         <div className='flex flex-col gap-2'>
           {providerButtons.map(
@@ -180,7 +188,10 @@ export function OAuthProviders({
                 type='button'
                 disabled={disabled || isLoading || extraDisabled}
                 onClick={onClick}
-                className='h-11 w-full justify-center gap-2 rounded-lg'
+                className={cn(
+                  'h-11 w-full justify-center gap-2 rounded-lg',
+                  buttonClassName
+                )}
               >
                 {icon}
                 {label}
@@ -188,6 +199,8 @@ export function OAuthProviders({
             )
           )}
         </div>
+
+        {dividerPosition === 'after' && divider}
       </div>
 
       <TelegramLoginDialog

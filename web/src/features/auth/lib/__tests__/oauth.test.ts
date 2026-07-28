@@ -38,4 +38,22 @@ describe('available OAuth providers', () => {
     ])
     assert.equal(hasOAuthProviders(status), true)
   })
+
+  test('recognizes a custom OAuth provider as an available login method', () => {
+    const status = {
+      custom_oauth_providers: [
+        {
+          id: 1,
+          name: 'Company SSO',
+          slug: 'company-sso',
+          icon: '',
+          client_id: 'company-client',
+          authorization_endpoint: 'https://example.com/oauth/authorize',
+          scopes: 'openid profile',
+        },
+      ],
+    }
+
+    assert.equal(hasOAuthProviders(status), true)
+  })
 })
