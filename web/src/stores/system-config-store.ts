@@ -17,7 +17,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 
 import { DEFAULT_SYSTEM_NAME, DEFAULT_LOGO } from '@/lib/constants'
 
@@ -65,43 +64,78 @@ interface SystemConfigState {
   setLoading: (loading: boolean) => void
 }
 
-/**
- * System configuration store with automatic persistence
- * Manages system name, logo, footer HTML and loading states
- */
-export const useSystemConfigStore = create<SystemConfigState>()(
-  persist(
-    (set) => ({
-      config: {
+interface EmbeddedPublicSystemConfig {
+  system_name?: unknown
+  logo?: unknown
+}
+
+function readEmbeddedPublicSystemConfig(): {
+  systemName: string
+  logo: string
+} {
+  if (typeof document === 'undefined') {
+    return {
+      systemName: DEFAULT_SYSTEM_NAME,
+      logo: DEFAULT_LOGO,
+    }
+  }
+
+  try {
+    const content = document.querySelector('#public-system-config')?.textContent
+    if (!content) {
+      return {
         systemName: DEFAULT_SYSTEM_NAME,
         logo: DEFAULT_LOGO,
-        currency: { ...DEFAULT_CURRENCY_CONFIG },
-      },
-      loading: true,
-      loadedLogoUrl: DEFAULT_LOGO,
-      setConfig: (newConfig) =>
-        set((state) => ({
-          config: {
-            ...state.config,
-            ...newConfig,
-            currency: {
-              ...state.config.currency,
-              ...(newConfig.currency ?? {}),
-            },
-          },
-        })),
-      setLoadedLogoUrl: (url) => set({ loadedLogoUrl: url }),
-      setLoading: (loading) => set({ loading }),
-    }),
-    {
-      name: 'system-config-storage',
-      partialize: (state) => ({
-        config: state.config,
-        loadedLogoUrl: state.loadedLogoUrl,
-      }),
+      }
     }
-  )
-)
+
+    const parsed = JSON.parse(content) as EmbeddedPublicSystemConfig
+    const systemName =
+      typeof parsed.system_name === 'string' && parsed.system_name.trim()
+        ? parsed.system_name.trim()
+        : DEFAULT_SYSTEM_NAME
+    const logo =
+      typeof parsed.logo === 'string' && parsed.logo.trim()
+        ? parsed.logo.trim()
+        : DEFAULT_LOGO
+    return { systemName, logo }
+  } catch {
+    return {
+      systemName: DEFAULT_SYSTEM_NAME,
+      logo: DEFAULT_LOGO,
+    }
+  }
+}
+
+const embeddedPublicSystemConfig = readEmbeddedPublicSystemConfig()
+
+/**
+ * System configuration store seeded by the server-rendered public config.
+ * The initial brand therefore matches the first HTML response without waiting
+ * for local storage hydration or a client-side status request.
+ */
+export const useSystemConfigStore = create<SystemConfigState>()((set) => ({
+  config: {
+    systemName: embeddedPublicSystemConfig.systemName,
+    logo: embeddedPublicSystemConfig.logo,
+    currency: { ...DEFAULT_CURRENCY_CONFIG },
+  },
+  loading: true,
+  loadedLogoUrl: DEFAULT_LOGO,
+  setConfig: (newConfig) =>
+    set((state) => ({
+      config: {
+        ...state.config,
+        ...newConfig,
+        currency: {
+          ...state.config.currency,
+          ...newConfig.currency,
+        },
+      },
+    })),
+  setLoadedLogoUrl: (url) => set({ loadedLogoUrl: url }),
+  setLoading: (loading) => set({ loading }),
+}))
 
 // Selector helpers for convenience
 export const getSystemName = () =>

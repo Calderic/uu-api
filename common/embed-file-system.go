@@ -24,9 +24,9 @@ func (e *embedFileSystem) Exists(prefix string, path string) bool {
 }
 
 func (e *embedFileSystem) Open(name string) (http.File, error) {
-	if name == "/" {
+	if name == "/" || name == "/index.html" || name == "index.html" {
 		// This will make sure the index page goes to NoRouter handler,
-		// which will use the replaced index bytes with analytic codes.
+		// which injects analytics and the configured public system brand.
 		return nil, os.ErrNotExist
 	}
 	return e.FileSystem.Open(name)

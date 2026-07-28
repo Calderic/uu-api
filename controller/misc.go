@@ -42,6 +42,7 @@ func TestStatus(c *gin.Context) {
 }
 
 func GetStatus(c *gin.Context) {
+	c.Header("Cache-Control", "no-store")
 
 	cs := console_setting.GetConsoleSetting()
 	common.OptionMapRWMutex.RLock()

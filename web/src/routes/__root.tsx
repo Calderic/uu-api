@@ -41,14 +41,19 @@ import {
   clearAuthentication,
 } from '@/lib/auth-session'
 import { subscribeAuthSessionEvents } from '@/lib/auth-session-sync'
+import { applySystemBrandingToDom } from '@/lib/dom-utils'
 import { useAuthStore } from '@/stores/auth-store'
 
 function RootComponent() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
-  // Load system configuration (logo, system name, etc.) from backend
-  useSystemConfig({ autoLoad: true })
+  // Refresh the server-seeded system configuration in the background.
+  const { systemName, logo } = useSystemConfig({ autoLoad: true })
+
+  useEffect(() => {
+    applySystemBrandingToDom(systemName, logo)
+  }, [logo, systemName])
 
   useEffect(() => {
     const aff = new URLSearchParams(window.location.search).get('aff')?.trim()

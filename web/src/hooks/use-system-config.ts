@@ -18,7 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 import { useEffect, useCallback } from 'react'
 
-import { DEFAULT_SYSTEM_NAME, DEFAULT_LOGO } from '@/lib/constants'
+import { DEFAULT_LOGO } from '@/lib/constants'
 import { applyFaviconToDom } from '@/lib/dom-utils'
 import {
   useSystemConfigStore,
@@ -67,6 +67,7 @@ export function mapStatusDataToConfig(
 ): Partial<SystemConfig> {
   if (!data) return {}
 
+  const systemName = data.system_name?.trim()
   const quotaDisplayType =
     (data.quota_display_type as CurrencyDisplayType | undefined) ??
     DEFAULT_CURRENCY_CONFIG.quotaDisplayType
@@ -93,7 +94,7 @@ export function mapStatusDataToConfig(
   }
 
   return {
-    systemName: data.system_name || DEFAULT_SYSTEM_NAME,
+    ...(systemName ? { systemName } : {}),
     logo: data.logo || DEFAULT_LOGO,
     footerHtml: data.footer_html,
     demoSiteEnabled: data.demo_site_enabled,
@@ -104,7 +105,7 @@ export function mapStatusDataToConfig(
 
 // Fetch system config from API
 async function fetchSystemConfig(): Promise<Partial<SystemConfig>> {
-  const response = await fetch('/api/status')
+  const response = await fetch('/api/status', { cache: 'no-store' })
   if (!response.ok) throw new Error('Failed to fetch status')
 
   const data: StatusApiResponse = await response.json()
@@ -120,13 +121,13 @@ function preloadImage(
   onError: () => void
 ): () => void {
   const img = new Image()
-  img.onload = onLoad
-  img.onerror = onError
+  img.addEventListener('load', onLoad)
+  img.addEventListener('error', onError)
   img.src = src
 
   return () => {
-    img.onload = null
-    img.onerror = null
+    img.removeEventListener('load', onLoad)
+    img.removeEventListener('error', onError)
   }
 }
 

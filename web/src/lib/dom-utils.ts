@@ -32,3 +32,27 @@ export function applyFaviconToDom(url: string) {
     // Ignore malformed URLs
   }
 }
+
+export function applySystemBrandingToDom(name: string, logo: string) {
+  if (typeof document === 'undefined') return
+
+  const normalizedName = name.trim()
+  if (normalizedName) {
+    document.title = normalizedName
+    const titleSelectors = [
+      'meta[name="title"]',
+      'meta[name="application-name"]',
+      'meta[name="apple-mobile-web-app-title"]',
+      'meta[property="og:title"]',
+      'meta[property="og:site_name"]',
+      'meta[name="twitter:title"]',
+    ]
+    titleSelectors.forEach((selector) => {
+      document
+        .querySelector<HTMLMetaElement>(selector)
+        ?.setAttribute('content', normalizedName)
+    })
+  }
+
+  applyFaviconToDom(logo)
+}
