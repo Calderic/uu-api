@@ -19,6 +19,8 @@ For commercial licensing, please contact support@quantumnous.com
 import { Link, useSearch } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 
+import loginBannerDark from '@/assets/auth/login-banner-dark.webp'
+import loginBannerLight from '@/assets/auth/login-banner-light.webp'
 import { useStatus } from '@/hooks/use-status'
 
 import { AuthLayout } from '../auth-layout'
@@ -33,8 +35,8 @@ export function SignIn() {
   return (
     <AuthLayout
       variant='split'
-      visualSrc='/login_banner.jpg'
-      darkVisualSrc='/login_banner_dark.jpg'
+      visualSrc={loginBannerLight}
+      darkVisualSrc={loginBannerDark}
     >
       <div className='flex w-full flex-col gap-7'>
         <div className='flex flex-col gap-2.5'>

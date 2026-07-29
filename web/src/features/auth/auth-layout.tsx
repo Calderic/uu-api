@@ -24,6 +24,7 @@ import { ThemeSwitch } from '@/components/theme-switch'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useTheme } from '@/context/theme-provider'
 import { useSystemConfig } from '@/hooks/use-system-config'
+import { cn } from '@/lib/utils'
 
 import { splitAuthLayoutClasses } from './auth-layout-styles'
 import { getAuthVisualSource } from './auth-visual'
@@ -33,6 +34,8 @@ type AuthLayoutProps = {
   variant?: 'default' | 'split'
   visualSrc?: string
   darkVisualSrc?: string
+  formSize?: 'default' | 'wide'
+  showVisualOnMobile?: boolean
 }
 
 export function AuthLayout({
@@ -40,6 +43,8 @@ export function AuthLayout({
   variant = 'default',
   visualSrc,
   darkVisualSrc,
+  formSize = 'default',
+  showVisualOnMobile = true,
 }: AuthLayoutProps) {
   const { t } = useTranslation()
   const { resolvedTheme } = useTheme()
@@ -87,11 +92,28 @@ export function AuthLayout({
             </header>
 
             <div className={splitAuthLayoutClasses.content}>
-              <div className={splitAuthLayoutClasses.form}>{children}</div>
+              <div
+                className={cn(
+                  splitAuthLayoutClasses.form,
+                  formSize === 'wide'
+                    ? splitAuthLayoutClasses.formWide
+                    : undefined
+                )}
+              >
+                {children}
+              </div>
             </div>
           </section>
 
-          <aside className={splitAuthLayoutClasses.visual} aria-hidden='true'>
+          <aside
+            className={cn(
+              splitAuthLayoutClasses.visual,
+              showVisualOnMobile
+                ? undefined
+                : splitAuthLayoutClasses.visualDesktopOnly
+            )}
+            aria-hidden='true'
+          >
             <img
               src={activeVisualSrc}
               alt=''
@@ -130,7 +152,7 @@ export function AuthLayout({
         )}
       </Link>
       <div className='container flex items-center pt-16 sm:pt-0'>
-        <div className='mx-auto flex w-full flex-col justify-center space-y-2 px-4 py-8 sm:w-[480px] sm:p-8'>
+        <div className='mx-auto flex w-full flex-col justify-center gap-2 px-4 py-8 sm:w-[480px] sm:p-8'>
           {children}
         </div>
       </div>

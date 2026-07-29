@@ -17,7 +17,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Loader2 } from 'lucide-react'
+import { UserAdd01Icon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -37,7 +38,14 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from '@/components/ui/input-group'
 import { Label } from '@/components/ui/label'
+import { Spinner } from '@/components/ui/spinner'
 import { register, wechatLoginByCode } from '@/features/auth/api'
 import { LegalConsent } from '@/features/auth/components/legal-consent'
 import { OAuthProviders } from '@/features/auth/components/oauth-providers'
@@ -93,7 +101,6 @@ export function SignUpForm({
       username: '',
       email: '',
       password: '',
-      confirmPassword: '',
     },
   })
 
@@ -237,17 +244,21 @@ export function SignUpForm({
       seconds: secondsLeft,
     })
   } else if (isSendingCode) {
-    verificationCodeAction = <Loader2 className='h-4 w-4 animate-spin' />
+    verificationCodeAction = (
+      <>
+        <Spinner data-icon='inline-start' />
+        {t('Sending...')}
+      </>
+    )
   }
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className={cn('grid gap-4', className)}
+        className={cn('grid gap-5', className)}
         {...props}
       >
-        {/* Username Field */}
         <FormField
           control={form.control}
           name='username'
@@ -255,14 +266,74 @@ export function SignUpForm({
             <FormItem>
               <FormLabel>{t('Username')}</FormLabel>
               <FormControl>
-                <Input placeholder={t('Enter your username')} {...field} />
+                <Input
+                  placeholder={t('Enter your username')}
+                  autoComplete='username'
+                  className='border-auth-border bg-auth-field h-10'
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        {/* Password Field */}
+        {emailVerificationRequired && (
+          <>
+            <FormField
+              control={form.control}
+              name='email'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('Email')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder={t('name@example.com')}
+                      type='email'
+                      autoComplete='email'
+                      className='border-auth-border bg-auth-field h-10'
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className='grid gap-2'>
+              <Label htmlFor='sign-up-verification-code'>
+                {t('Verification code')}
+              </Label>
+              <InputGroup className='border-auth-border bg-auth-field h-10'>
+                <InputGroupInput
+                  id='sign-up-verification-code'
+                  placeholder={t('Verification code')}
+                  value={verificationCode}
+                  onChange={(event) => setVerificationCode(event.target.value)}
+                  autoComplete='one-time-code'
+                />
+                <InputGroupAddon align='inline-end'>
+                  <InputGroupButton
+                    type='button'
+                    size='sm'
+                    className='px-3'
+                    disabled={
+                      isLoading ||
+                      isSendingCode ||
+                      isActive ||
+                      !emailValue ||
+                      !turnstileReady
+                    }
+                    onClick={handleSendVerificationCode}
+                  >
+                    {verificationCodeAction}
+                  </InputGroupButton>
+                </InputGroupAddon>
+              </InputGroup>
+            </div>
+          </>
+        )}
+
         <FormField
           control={form.control}
           name='password'
@@ -272,6 +343,8 @@ export function SignUpForm({
               <FormControl>
                 <PasswordInput
                   placeholder={t('Enter password (8-20 characters)')}
+                  autoComplete='new-password'
+                  className='[&_input]:border-auth-border [&_input]:bg-auth-field [&_input]:h-10'
                   {...field}
                 />
               </FormControl>
@@ -280,75 +353,8 @@ export function SignUpForm({
           )}
         />
 
-        {/* Confirm Password Field */}
-        <FormField
-          control={form.control}
-          name='confirmPassword'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t('Confirm password')}</FormLabel>
-              <FormControl>
-                <PasswordInput placeholder={t('Confirm password')} {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Email Verification Section */}
-        {emailVerificationRequired && (
-          <>
-            {/* Email Field */}
-            <FormField
-              control={form.control}
-              name='email'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    {t('Email (required for verification)')}
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={t('name@example.com')}
-                      type='email'
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Verification Code Field */}
-            <div className='flex items-end gap-2'>
-              <div className='flex-1'>
-                <Input
-                  placeholder={t('Verification code')}
-                  value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value)}
-                />
-              </div>
-              <Button
-                variant='outline'
-                type='button'
-                disabled={
-                  isLoading ||
-                  isSendingCode ||
-                  isActive ||
-                  !emailValue ||
-                  !turnstileReady
-                }
-                onClick={handleSendVerificationCode}
-              >
-                {verificationCodeAction}
-              </Button>
-            </div>
-          </>
-        )}
-
-        {/* Turnstile */}
         {isTurnstileEnabled && (
-          <div className='mt-2'>
+          <div>
             <Turnstile
               key={turnstileWidgetKey}
               siteKey={turnstileSiteKey}
@@ -361,20 +367,28 @@ export function SignUpForm({
           status={status}
           checked={agreedToLegal}
           onCheckedChange={setAgreedToLegal}
-          className='mt-1'
+          className='border-auth-border bg-auth-field mt-1'
         />
 
-        {/* Submit Button */}
         <Button
           type='submit'
-          className='mt-2 w-full justify-center gap-2'
+          className='mt-1 h-10 w-full justify-center gap-2'
           disabled={
             isLoading ||
             (requiresLegalConsent && !agreedToLegal) ||
             !turnstileReady
           }
         >
-          {isLoading ? <Loader2 className='h-4 w-4 animate-spin' /> : null}
+          {isLoading ? (
+            <Spinner data-icon='inline-start' />
+          ) : (
+            <HugeiconsIcon
+              icon={UserAdd01Icon}
+              className='size-4'
+              data-icon='inline-start'
+              aria-hidden='true'
+            />
+          )}
           {t('Create account')}
         </Button>
 
@@ -384,7 +398,8 @@ export function SignUpForm({
             disabled={isLoading || (requiresLegalConsent && !agreedToLegal)}
             onWeChatLogin={hasWeChatLogin ? handleOpenWeChatDialog : undefined}
             isWeChatLoading={isWeChatSubmitting}
-            className='pt-2'
+            className='pt-1'
+            buttonClassName='border-auth-border bg-auth-field h-10'
           />
         )}
       </form>
@@ -400,7 +415,7 @@ export function SignUpForm({
           contentClassName='max-w-sm'
           headerClassName='text-left'
           contentHeight='auto'
-          bodyClassName='space-y-4'
+          bodyClassName='flex flex-col gap-4'
           footer={
             <>
               <Button
@@ -422,7 +437,7 @@ export function SignUpForm({
                 className='gap-2'
               >
                 {isWeChatSubmitting ? (
-                  <Loader2 className='h-4 w-4 animate-spin' />
+                  <Spinner data-icon='inline-start' />
                 ) : null}
                 {t('Confirm')}
               </Button>

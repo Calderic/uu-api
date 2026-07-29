@@ -26,6 +26,7 @@ describe('split auth layout', () => {
   test('centers the auth card on a dedicated backdrop', () => {
     assert.match(splitAuthLayoutClasses.root, /min-h-svh/)
     assert.match(splitAuthLayoutClasses.root, /bg-auth-backdrop/)
+    assert.match(splitAuthLayoutClasses.shell, /my-auto/)
     assert.match(splitAuthLayoutClasses.shell, /rounded-\[1\.75rem\]/)
     assert.match(splitAuthLayoutClasses.shell, /lg:grid-cols-/)
     assert.match(splitAuthLayoutClasses.shell, /bg-auth-panel/)
@@ -44,9 +45,15 @@ describe('split auth layout', () => {
 
   test('constrains the form and covers the rounded visual panel', () => {
     assert.match(splitAuthLayoutClasses.form, /max-w-\[23rem\]/)
+    assert.match(splitAuthLayoutClasses.formWide, /max-w-\[26rem\]/)
     assert.match(splitAuthLayoutClasses.visual, /rounded-\[1\.25rem\]/)
     assert.match(splitAuthLayoutClasses.image, /size-full/)
     assert.match(splitAuthLayoutClasses.image, /object-cover/)
+  })
+
+  test('supports long auth flows without showing the visual on mobile', () => {
+    assert.match(splitAuthLayoutClasses.visualDesktopOnly, /hidden/)
+    assert.match(splitAuthLayoutClasses.visualDesktopOnly, /lg:block/)
   })
 
   test('uses the dark visual when dark mode provides one', () => {
