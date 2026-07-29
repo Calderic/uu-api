@@ -26,6 +26,10 @@ test('only the hero keeps a dark appearance independently from the selected them
   assert.doesNotMatch(homeLayoutClasses.landingRoot, /\bdark\b/)
   assert.match(homeLayoutClasses.heroStage, /\bhome-hero-dark\b/)
   assert.match(homeLayoutClasses.heroBoundary, /\bh-px\b/)
+  assert.doesNotMatch(
+    homeLayoutClasses.heroBoundary,
+    /\bbg-\[var\(--home-canvas\)\]/
+  )
 })
 
 test('endpoint stays stacked on narrow screens and becomes inline on desktop', () => {
@@ -58,10 +62,12 @@ test('capability stage keeps the signal map and protocol copy in two columns', (
 })
 
 test('metrics progress from one column to a four-column editorial rail', () => {
-  assert.doesNotMatch(homeLayoutClasses.metrics, /\bgrid-cols-2\b/)
-  assert.match(homeLayoutClasses.metrics, /\bsm:grid-cols-2\b/)
-  assert.match(homeLayoutClasses.metrics, /\blg:grid-cols-4\b/)
-  assert.match(homeLayoutClasses.metrics, /\bborder-t\b/)
+  const metricClasses = homeLayoutClasses.metrics.split(' ')
+
+  assert.ok(!metricClasses.includes('grid-cols-2'))
+  assert.ok(metricClasses.includes('sm:grid-cols-2'))
+  assert.ok(metricClasses.includes('lg:grid-cols-4'))
+  assert.ok(metricClasses.includes('border-t'))
 })
 
 test('model names use a dedicated overflow-safe signal rail', () => {

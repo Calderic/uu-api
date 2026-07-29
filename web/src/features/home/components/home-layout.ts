@@ -27,7 +27,7 @@ export const homeLayoutClasses = {
   flowViewport:
     'relative overflow-hidden border-t border-[var(--home-flow-line)] bg-[var(--home-flow)] text-[var(--home-flow-ink)] lg:sticky lg:top-0 lg:flex lg:h-svh lg:flex-col lg:justify-center',
   foregroundStack: 'relative z-10 bg-[var(--home-canvas)]',
-  heroBoundary: 'relative z-20 h-px bg-[var(--home-canvas)]',
+  heroBoundary: 'relative z-20 h-px',
   heroStage:
     'home-hero-dark relative isolate z-10 min-h-svh overflow-hidden bg-[var(--home-canvas)] px-4 pt-24 pb-10 sm:px-6 sm:pt-28 lg:sticky lg:top-0 lg:h-svh lg:px-8 lg:pt-24',
   liquidChromeBackdrop:
