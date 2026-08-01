@@ -47,6 +47,27 @@ type publicSystemConfig struct {
 	Logo       string `json:"logo"`
 }
 
+func normalizeWebBranding(branding webIndexBranding) webIndexBranding {
+	branding.SystemName = strings.TrimSpace(branding.SystemName)
+	if branding.SystemName == "" {
+		branding.SystemName = "New API"
+	}
+	branding.Logo = normalizeLogoURL(branding.Logo)
+	return branding
+}
+
+func configuredWebBranding(siteURL, canonicalURL string) webIndexBranding {
+	common.OptionMapRWMutex.RLock()
+	branding := webIndexBranding{
+		SystemName:   common.SystemName,
+		Logo:         common.Logo,
+		SiteURL:      siteURL,
+		CanonicalURL: canonicalURL,
+	}
+	common.OptionMapRWMutex.RUnlock()
+	return normalizeWebBranding(branding)
+}
+
 func normalizePublicURL(value string) string {
 	value = strings.TrimRight(strings.TrimSpace(value), "/")
 	parsed, err := url.Parse(value)
@@ -87,11 +108,9 @@ func resolvePublicAssetURL(siteURL string, assetURL string) string {
 }
 
 func renderWebIndexPage(indexPage []byte, branding webIndexBranding) ([]byte, error) {
-	systemName := strings.TrimSpace(branding.SystemName)
-	if systemName == "" {
-		systemName = "New API"
-	}
-	logo := normalizeLogoURL(branding.Logo)
+	branding = normalizeWebBranding(branding)
+	systemName := branding.SystemName
+	logo := branding.Logo
 
 	publicConfigJSON, err := common.Marshal(publicSystemConfig{
 		SystemName: systemName,
@@ -195,7 +214,7 @@ func redirectToConfiguredBrandAsset(c *gin.Context) {
 	logo := normalizeLogoURL(common.Logo)
 	common.OptionMapRWMutex.RUnlock()
 
-	c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+	c.Header("Cache-Control", "public, max-age=300, stale-while-revalidate=86400")
 	c.Redirect(http.StatusFound, logo)
 }
 
@@ -227,17 +246,12 @@ func SetWebRouter(router *gin.Engine, assets WebAssets) {
 
 		common.OptionMapRWMutex.RLock()
 		siteURL := strings.TrimRight(system_setting.ServerAddress, "/")
+		common.OptionMapRWMutex.RUnlock()
 		canonicalURL := siteURL
 		if path := c.Request.URL.EscapedPath(); path != "" && path != "/" && path != "/index.html" {
 			canonicalURL += path
 		}
-		branding := webIndexBranding{
-			SystemName:   common.SystemName,
-			Logo:         common.Logo,
-			SiteURL:      siteURL,
-			CanonicalURL: canonicalURL,
-		}
-		common.OptionMapRWMutex.RUnlock()
+		branding := configuredWebBranding(siteURL, canonicalURL)
 
 		indexPage, err := renderWebIndexPage(assets.IndexPage, branding)
 		if err != nil {

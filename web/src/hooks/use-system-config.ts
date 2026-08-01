@@ -18,7 +18,8 @@ For commercial licensing, please contact support@quantumnous.com
 */
 import { useEffect, useCallback } from 'react'
 
-import { DEFAULT_LOGO } from '@/lib/constants'
+import { getStatus } from '@/lib/api'
+import { DEFAULT_LOGO, DEFAULT_SYSTEM_NAME } from '@/lib/constants'
 import { applyFaviconToDom } from '@/lib/dom-utils'
 import {
   useSystemConfigStore,
@@ -33,21 +34,18 @@ interface UseSystemConfigOptions {
   autoLoad?: boolean
 }
 
-interface StatusApiResponse {
-  success: boolean
-  data: {
-    system_name?: string
-    logo?: string
-    footer_html?: string
-    demo_site_enabled?: boolean
-    display_token_stat_enabled?: boolean
-    display_in_currency?: boolean
-    quota_display_type?: CurrencyDisplayType
-    quota_per_unit?: number
-    usd_exchange_rate?: number
-    custom_currency_symbol?: string
-    custom_currency_exchange_rate?: number
-  }
+export interface SystemStatusData {
+  system_name?: string
+  logo?: string
+  footer_html?: string
+  demo_site_enabled?: boolean
+  display_token_stat_enabled?: boolean
+  display_in_currency?: boolean
+  quota_display_type?: CurrencyDisplayType
+  quota_per_unit?: number
+  usd_exchange_rate?: number
+  custom_currency_symbol?: string
+  custom_currency_exchange_rate?: number
 }
 
 function toNumber(value: unknown, fallback: number): number {
@@ -63,7 +61,7 @@ function toNumber(value: unknown, fallback: number): number {
  * Map `/api/status` response data to our persisted system config structure
  */
 export function mapStatusDataToConfig(
-  data: StatusApiResponse['data'] | undefined
+  data: SystemStatusData | undefined
 ): Partial<SystemConfig> {
   if (!data) return {}
 
@@ -93,9 +91,17 @@ export function mapStatusDataToConfig(
     ),
   }
 
+  const logo = data.logo?.trim()
+  const systemNameConfig =
+    data.system_name === undefined
+      ? {}
+      : { systemName: systemName || DEFAULT_SYSTEM_NAME }
+  const logoConfig =
+    data.logo === undefined ? {} : { logo: logo || DEFAULT_LOGO }
+
   return {
-    ...(systemName ? { systemName } : {}),
-    logo: data.logo || DEFAULT_LOGO,
+    ...systemNameConfig,
+    ...logoConfig,
     footerHtml: data.footer_html,
     demoSiteEnabled: data.demo_site_enabled,
     displayTokenStatEnabled: data.display_token_stat_enabled,
@@ -105,13 +111,8 @@ export function mapStatusDataToConfig(
 
 // Fetch system config from API
 async function fetchSystemConfig(): Promise<Partial<SystemConfig>> {
-  const response = await fetch('/api/status', { cache: 'no-store' })
-  if (!response.ok) throw new Error('Failed to fetch status')
-
-  const data: StatusApiResponse = await response.json()
-  if (!data.success) throw new Error('API returned error')
-
-  return mapStatusDataToConfig(data.data)
+  const data = await getStatus<SystemStatusData>()
+  return mapStatusDataToConfig(data)
 }
 
 // Preload image and return cleanup function
@@ -144,28 +145,19 @@ function preloadImage(
  */
 export function useSystemConfig(options: UseSystemConfigOptions = {}) {
   const { autoLoad = false } = options
-  const {
-    config,
-    loading,
-    loadedLogoUrl,
-    setConfig,
-    setLoadedLogoUrl,
-    setLoading,
-  } = useSystemConfigStore()
+  const { config, loading, loadedLogoUrl, setConfig, setLoadedLogoUrl } =
+    useSystemConfigStore()
 
   // Load config from backend
   const loadConfig = useCallback(async () => {
     try {
-      setLoading(true)
       const newConfig = await fetchSystemConfig()
       setConfig(newConfig)
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Failed to load system config:', error)
-    } finally {
-      setLoading(false)
     }
-  }, [setConfig, setLoading])
+  }, [setConfig])
 
   useEffect(() => {
     if (autoLoad) loadConfig()

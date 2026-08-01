@@ -67,9 +67,9 @@ export async function getUserGroups(): Promise<{
 // System APIs
 // ============================================================================
 
-export async function getStatus() {
+export async function getStatus<T = Record<string, unknown>>(): Promise<T> {
   const res = await api.get('/api/status')
-  return res.data?.data as Record<string, unknown>
+  return res.data?.data as T
 }
 
 export async function getNotice(): Promise<{

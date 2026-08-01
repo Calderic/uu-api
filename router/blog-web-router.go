@@ -34,6 +34,8 @@ var (
 type blogPageData struct {
 	SiteName        string
 	SiteDescription string
+	BrandName       string
+	BrandLogo       string
 	PageTitle       string
 	Description     string
 	Canonical       string
@@ -153,6 +155,7 @@ func renderBlogList(c *gin.Context, category, tag, filterTitle, filterPath strin
 	}
 
 	baseURL := blogBaseURL(c, settings)
+	brandName, brandLogo := blogBranding(baseURL)
 	pagePath := filterPath
 	if page > 1 {
 		pagePath += "?page=" + strconv.Itoa(page)
@@ -168,6 +171,8 @@ func renderBlogList(c *gin.Context, category, tag, filterTitle, filterPath strin
 	data := blogPageData{
 		SiteName:        settings.BlogName,
 		SiteDescription: settings.BlogDescription,
+		BrandName:       brandName,
+		BrandLogo:       brandLogo,
 		PageTitle:       title,
 		Description:     description,
 		Canonical:       baseURL + pagePath,
@@ -210,6 +215,7 @@ func renderBlogArticle(c *gin.Context) {
 		return
 	}
 	baseURL := blogBaseURL(c, settings)
+	brandName, brandLogo := blogBranding(baseURL)
 	canonical := baseURL + "/blog/" + url.PathEscape(article.Slug)
 	if article.CanonicalUrl != nil && strings.TrimSpace(*article.CanonicalUrl) != "" {
 		canonical = strings.TrimSpace(*article.CanonicalUrl)
@@ -237,6 +243,8 @@ func renderBlogArticle(c *gin.Context) {
 	data := blogPageData{
 		SiteName:        settings.BlogName,
 		SiteDescription: settings.BlogDescription,
+		BrandName:       brandName,
+		BrandLogo:       brandLogo,
 		PageTitle:       title,
 		Description:     description,
 		Canonical:       canonical,
@@ -248,7 +256,7 @@ func renderBlogArticle(c *gin.Context) {
 		GeneratedAt:     time.Now().UTC(),
 	}
 	if article.CoverImageUrl != nil {
-		data.OGImage = *article.CoverImageUrl
+		data.OGImage = resolvePublicAssetURL(baseURL, strings.TrimSpace(*article.CoverImageUrl))
 	}
 	renderBlogTemplate(c, data)
 }
@@ -342,6 +350,11 @@ func blogBaseURL(c *gin.Context, settings *model.BlogSettingsView) string {
 		host = forwarded
 	}
 	return scheme + "://" + host
+}
+
+func blogBranding(baseURL string) (string, string) {
+	branding := configuredWebBranding(baseURL, "")
+	return branding.SystemName, resolvePublicAssetURL(baseURL, branding.Logo)
 }
 
 func blogPageURL(path string, page int) string {
@@ -455,22 +468,31 @@ const blogHTMLTemplate = `<!doctype html>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>{{.PageTitle}}</title>
   <meta name="description" content="{{.Description}}">
+  <meta name="application-name" content="{{.BrandName}}">
+  <link rel="icon" href="{{.BrandLogo}}">
+  <link rel="shortcut icon" href="{{.BrandLogo}}">
+  <link rel="apple-touch-icon" href="{{.BrandLogo}}">
   <link rel="canonical" href="{{.Canonical}}">
   {{if .PreviousURL}}<link rel="prev" href="{{.PreviousURL}}">{{end}}
   {{if .NextURL}}<link rel="next" href="{{.NextURL}}">{{end}}
   <meta property="og:type" content="{{.OGType}}">
   <meta property="og:title" content="{{.PageTitle}}">
+  <meta property="og:site_name" content="{{.BrandName}}">
   <meta property="og:description" content="{{.Description}}">
   <meta property="og:url" content="{{.Canonical}}">
-  {{if .OGImage}}<meta property="og:image" content="{{.OGImage}}">{{end}}
+  <meta property="og:image" content="{{if .OGImage}}{{.OGImage}}{{else}}{{.BrandLogo}}{{end}}">
+  <meta property="og:image:alt" content="{{.BrandName}}">
   <meta name="twitter:card" content="{{if .OGImage}}summary_large_image{{else}}summary{{end}}">
+  <meta name="twitter:title" content="{{.PageTitle}}">
+  <meta name="twitter:image" content="{{if .OGImage}}{{.OGImage}}{{else}}{{.BrandLogo}}{{end}}">
+  <meta name="twitter:image:alt" content="{{.BrandName}}">
   {{if .StructuredData}}<script type="application/ld+json">{{.StructuredData}}</script>{{end}}
   <style>
     :root{color-scheme:light dark;--bg:#fff;--fg:#161616;--muted:#6b6b6b;--line:#e7e7e7;--card:#fafafa;--accent:#111}
     @media(prefers-color-scheme:dark){:root{--bg:#111;--fg:#eee;--muted:#a0a0a0;--line:#2c2c2c;--card:#181818;--accent:#fff}}
     *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.7 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
     a{color:inherit}.shell{width:min(100% - 40px,1040px);margin:auto}.top{display:flex;align-items:center;justify-content:space-between;padding:32px 0;border-bottom:1px solid var(--line)}
-    .brand{text-decoration:none;font-size:20px;font-weight:720;letter-spacing:-.02em}.top small{color:var(--muted)}main{padding:64px 0 96px}
+    .brand{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-size:20px;font-weight:720;letter-spacing:-.02em}.brand-logo{width:32px;height:32px;flex:none;object-fit:contain;border-radius:8px}.top small{color:var(--muted)}main{padding:64px 0 96px}
     .hero{max-width:700px;margin-bottom:48px}.hero h1{font-size:clamp(36px,6vw,64px);line-height:1.08;letter-spacing:-.05em;margin:0 0 16px}.hero p{font-size:18px;color:var(--muted);margin:0}
     .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.card{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--card);text-decoration:none;transition:transform .18s,border-color .18s}
     .card:hover{transform:translateY(-2px);border-color:var(--muted)}.cover{aspect-ratio:2/1;width:100%;object-fit:cover;background:var(--line)}.card-body{padding:24px}.eyebrow{display:flex;gap:10px;color:var(--muted);font-size:13px;margin-bottom:10px}
@@ -486,7 +508,7 @@ const blogHTMLTemplate = `<!doctype html>
   </style>
 </head>
 <body>
-  <header class="shell top"><a class="brand" href="/blog">{{.SiteName}}</a><small>{{.SiteDescription}}</small></header>
+  <header class="shell top"><a class="brand" href="/blog"><img class="brand-logo" src="{{.BrandLogo}}" alt="" width="32" height="32" decoding="async" fetchpriority="high">{{.SiteName}}</a><small>{{.SiteDescription}}</small></header>
   <main class="shell">
   {{if .Article}}
     <a class="back" href="/blog">← 返回博客</a>

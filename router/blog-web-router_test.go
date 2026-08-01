@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/model"
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
@@ -25,6 +26,18 @@ func TestBlogWebRoutesPreserveIndexedArticleURLs(t *testing.T) {
 	t.Cleanup(func() {
 		model.DB = previousDB
 	})
+	previousSystemName := common.SystemName
+	previousLogo := common.Logo
+	t.Cleanup(func() {
+		common.OptionMapRWMutex.Lock()
+		common.SystemName = previousSystemName
+		common.Logo = previousLogo
+		common.OptionMapRWMutex.Unlock()
+	})
+	common.OptionMapRWMutex.Lock()
+	common.SystemName = "UUcode"
+	common.Logo = "https://cdn.example.com/uucode.png"
+	common.OptionMapRWMutex.Unlock()
 
 	now := time.Date(2026, 4, 13, 8, 0, 0, 0, time.UTC)
 	require.NoError(t, db.Create(&model.BlogSettings{
@@ -75,6 +88,10 @@ func TestBlogWebRoutesPreserveIndexedArticleURLs(t *testing.T) {
 	assert.Contains(t, body, "<h1>已收录文章</h1>")
 	assert.Contains(t, body, ">完整正文</h1>")
 	assert.Contains(t, body, `rel="canonical" href="https://www.uucode.org/blog/indexed-slug"`)
+	assert.Contains(t, body, `<link rel="icon" href="https://cdn.example.com/uucode.png">`)
+	assert.Contains(t, body, `<meta name="application-name" content="UUcode">`)
+	assert.Contains(t, body, `<meta property="og:site_name" content="UUcode">`)
+	assert.Contains(t, body, `<meta property="og:image" content="https://cdn.example.com/uucode.png">`)
 	assert.Contains(t, body, `type="application/ld+json"`)
 	assert.Contains(t, body, `"@type":"FAQPage"`)
 	assert.Contains(t, body, `"name":"迁移后 URL 会变吗？"`)

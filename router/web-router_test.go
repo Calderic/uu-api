@@ -103,7 +103,7 @@ func TestDynamicBrandAssetRedirectUsesConfiguredLogo(t *testing.T) {
 
 	require.Equal(t, http.StatusFound, recorder.Code)
 	assert.Equal(t, "https://cdn.example.com/uucode.png", recorder.Header().Get("Location"))
-	assert.Equal(t, "no-cache, no-store, must-revalidate", recorder.Header().Get("Cache-Control"))
+	assert.Equal(t, "public, max-age=300, stale-while-revalidate=86400", recorder.Header().Get("Cache-Control"))
 }
 
 func TestDynamicBrandAssetPathsExcludeStaticDefaults(t *testing.T) {

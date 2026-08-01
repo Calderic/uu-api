@@ -74,6 +74,8 @@ export function AuthLayout({
                       src={logo}
                       alt={t('Logo')}
                       className='size-8 rounded-full object-cover'
+                      decoding='async'
+                      fetchPriority='high'
                     />
                   )}
                 </div>
@@ -142,6 +144,8 @@ export function AuthLayout({
               src={logo}
               alt={t('Logo')}
               className='h-8 w-8 rounded-full object-cover'
+              decoding='async'
+              fetchPriority='high'
             />
           )}
         </div>

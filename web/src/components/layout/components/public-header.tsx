@@ -218,6 +218,7 @@ export function PublicHeader(props: PublicHeaderProps) {
     brandLogo = (
       <HeaderLogo
         src={systemLogo}
+        alt={displaySiteName}
         loading={loading}
         logoLoaded={logoLoaded}
         className='size-full rounded-lg object-contain'

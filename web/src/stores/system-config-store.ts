@@ -120,8 +120,8 @@ export const useSystemConfigStore = create<SystemConfigState>()((set) => ({
     logo: embeddedPublicSystemConfig.logo,
     currency: { ...DEFAULT_CURRENCY_CONFIG },
   },
-  loading: true,
-  loadedLogoUrl: DEFAULT_LOGO,
+  loading: false,
+  loadedLogoUrl: embeddedPublicSystemConfig.logo,
   setConfig: (newConfig) =>
     set((state) => ({
       config: {

@@ -22,7 +22,10 @@ import type { SystemStatus } from '@/features/auth/types'
 import { getStatus } from '@/lib/api'
 import { useSystemConfigStore } from '@/stores/system-config-store'
 
-import { mapStatusDataToConfig } from './use-system-config'
+import {
+  mapStatusDataToConfig,
+  type SystemStatusData,
+} from './use-system-config'
 
 // Get initial cache from localStorage
 function getInitialStatus(): SystemStatus | undefined {
@@ -41,7 +44,7 @@ export function useStatus() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['status'],
     queryFn: async () => {
-      const status = await getStatus()
+      const status = await getStatus<SystemStatusData>()
       try {
         if (status) {
           const { setConfig } = useSystemConfigStore.getState()
