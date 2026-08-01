@@ -31,6 +31,8 @@ const STATUS_RELATED_KEYS = new Set([
   'SystemName',
   'Logo',
   'Footer',
+  'CrispEnabled',
+  'CrispWebsiteId',
   'LogConsumeEnabled',
   'QuotaPerUnit',
   'USDExchangeRate',

@@ -118,6 +118,8 @@ export type SiteSettings = {
   'legal.privacy_policy': string
   HeaderNavModules: string
   SidebarModulesAdmin: string
+  CrispEnabled: boolean
+  CrispWebsiteId: string
 }
 
 export type AuthSettings = {

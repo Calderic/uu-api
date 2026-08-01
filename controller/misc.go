@@ -72,6 +72,8 @@ func GetStatus(c *gin.Context) {
 		"wechat_qrcode":               common.WeChatAccountQRCodeImageURL,
 		"wechat_login":                common.WeChatAuthEnabled,
 		"server_address":              system_setting.ServerAddress,
+		"crisp_enabled":               common.OptionMap["CrispEnabled"] == "true",
+		"crisp_website_id":            strings.TrimSpace(common.OptionMap["CrispWebsiteId"]),
 		"turnstile_check":             common.TurnstileCheckEnabled,
 		"turnstile_site_key":          common.TurnstileSiteKey,
 		"docs_link":                   operation_setting.GetGeneralSetting().DocsLink,

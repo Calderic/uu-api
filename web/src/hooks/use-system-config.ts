@@ -25,7 +25,9 @@ import {
   useSystemConfigStore,
   type CurrencyConfig,
   type CurrencyDisplayType,
+  type CrispConfig,
   type SystemConfig,
+  DEFAULT_CRISP_CONFIG,
   DEFAULT_CURRENCY_CONFIG,
 } from '@/stores/system-config-store'
 
@@ -38,6 +40,8 @@ export interface SystemStatusData {
   system_name?: string
   logo?: string
   footer_html?: string
+  crisp_enabled?: boolean
+  crisp_website_id?: string
   demo_site_enabled?: boolean
   display_token_stat_enabled?: boolean
   display_in_currency?: boolean
@@ -91,6 +95,11 @@ export function mapStatusDataToConfig(
     ),
   }
 
+  const crisp: CrispConfig = {
+    enabled: data.crisp_enabled ?? DEFAULT_CRISP_CONFIG.enabled,
+    websiteId: data.crisp_website_id?.trim() ?? DEFAULT_CRISP_CONFIG.websiteId,
+  }
+
   const logo = data.logo?.trim()
   const systemNameConfig =
     data.system_name === undefined
@@ -105,6 +114,7 @@ export function mapStatusDataToConfig(
     footerHtml: data.footer_html,
     demoSiteEnabled: data.demo_site_enabled,
     displayTokenStatEnabled: data.display_token_stat_enabled,
+    crisp,
     currency,
   }
 }

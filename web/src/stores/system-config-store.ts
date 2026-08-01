@@ -37,12 +37,18 @@ export interface CurrencyConfig {
   customCurrencyExchangeRate: number
 }
 
+export interface CrispConfig {
+  enabled: boolean
+  websiteId: string
+}
+
 export interface SystemConfig {
   systemName: string
   logo: string
   footerHtml?: string
   demoSiteEnabled?: boolean
   displayTokenStatEnabled?: boolean
+  crisp: CrispConfig
   currency: CurrencyConfig
 }
 
@@ -53,6 +59,11 @@ export const DEFAULT_CURRENCY_CONFIG: CurrencyConfig = {
   usdExchangeRate: 1,
   customCurrencySymbol: '¤',
   customCurrencyExchangeRate: 1,
+}
+
+export const DEFAULT_CRISP_CONFIG: CrispConfig = {
+  enabled: false,
+  websiteId: '',
 }
 
 interface SystemConfigState {
@@ -118,6 +129,7 @@ export const useSystemConfigStore = create<SystemConfigState>()((set) => ({
   config: {
     systemName: embeddedPublicSystemConfig.systemName,
     logo: embeddedPublicSystemConfig.logo,
+    crisp: { ...DEFAULT_CRISP_CONFIG },
     currency: { ...DEFAULT_CURRENCY_CONFIG },
   },
   loading: false,

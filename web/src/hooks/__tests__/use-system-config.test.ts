@@ -52,3 +52,15 @@ test('status mapping resets an explicitly cleared name to the default name', () 
 
   assert.equal(config.systemName, DEFAULT_SYSTEM_NAME)
 })
+
+test('status mapping exposes a trimmed Crisp configuration', () => {
+  const config = mapStatusDataToConfig({
+    crisp_enabled: true,
+    crisp_website_id: '  website-id  ',
+  })
+
+  assert.deepEqual(config.crisp, {
+    enabled: true,
+    websiteId: 'website-id',
+  })
+})

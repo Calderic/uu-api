@@ -27,6 +27,7 @@ import {
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { useEffect } from 'react'
 
+import { CrispChat } from '@/components/crisp-chat'
 import { NavigationProgress } from '@/components/navigation-progress'
 import { Toaster } from '@/components/ui/sonner'
 import { ThemeCustomizationProvider } from '@/context/theme-customization-provider'
@@ -49,7 +50,7 @@ function RootComponent() {
   const queryClient = useQueryClient()
 
   // Refresh the server-seeded system configuration in the background.
-  const { systemName, logo } = useSystemConfig({ autoLoad: true })
+  const { systemName, logo, crisp } = useSystemConfig({ autoLoad: true })
 
   useEffect(() => {
     applySystemBrandingToDom(systemName, logo)
@@ -100,6 +101,7 @@ function RootComponent() {
     <ThemeCustomizationProvider>
       <NavigationProgress />
       <Outlet />
+      <CrispChat enabled={crisp.enabled} websiteId={crisp.websiteId} />
       <Toaster closeButton duration={5000} position='top-center' richColors />
       {import.meta.env.MODE === 'development' && (
         <>
