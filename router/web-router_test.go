@@ -1,8 +1,12 @@
 package router
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
+	"github.com/QuantumNous/new-api/common"
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -28,6 +32,10 @@ func TestRenderWebIndexPageUsesConfiguredBrandInInitialHTML(t *testing.T) {
 	assert.Contains(t, body, `<meta name="application-name" content="UUcode" />`)
 	assert.Contains(t, body, `<meta property="og:site_name" content="UUcode" />`)
 	assert.Contains(t, body, `<link rel="icon" href="https://cdn.example.com/uucode.png" />`)
+	assert.Contains(t, body, `<link rel="shortcut icon" href="https://cdn.example.com/uucode.png" />`)
+	assert.Contains(t, body, `<link rel="apple-touch-icon" href="https://cdn.example.com/uucode.png" />`)
+	assert.Contains(t, body, `<meta property="og:image" content="https://cdn.example.com/uucode.png" />`)
+	assert.Contains(t, body, `<meta name="twitter:image" content="https://cdn.example.com/uucode.png" />`)
 	assert.Contains(t, body, `<link rel="icon" href="https://cdn.example.com/uucode.png">`)
 	assert.Contains(t, body, `<link rel="canonical" href="https://www.uucode.org" />`)
 	assert.Contains(t, body, `"name":"UUcode"`)
@@ -53,6 +61,56 @@ func TestRenderWebIndexPageEscapesConfiguredBrand(t *testing.T) {
 	assert.Contains(t, body, `logo.png?size=&#34;large&#34;`)
 	assert.NotContains(t, body, `rel="canonical"`)
 	assert.NotContains(t, body, `application/ld+json`)
+}
+
+func TestRenderWebIndexPageResolvesRelativeShareImageURL(t *testing.T) {
+	rendered, err := renderWebIndexPage(
+		[]byte(runtimeBrandStart+"New API"+runtimeBrandEnd),
+		webIndexBranding{
+			SystemName: "UUcode",
+			Logo:       "/uploads/uucode.png",
+			SiteURL:    "https://www.uucode.org/app",
+		},
+	)
+
+	require.NoError(t, err)
+	assert.Contains(
+		t,
+		string(rendered),
+		`<meta property="og:image" content="https://www.uucode.org/uploads/uucode.png" />`,
+	)
+}
+
+func TestDynamicBrandAssetRedirectUsesConfiguredLogo(t *testing.T) {
+	previousLogo := common.Logo
+	t.Cleanup(func() {
+		common.OptionMapRWMutex.Lock()
+		common.Logo = previousLogo
+		common.OptionMapRWMutex.Unlock()
+	})
+
+	common.OptionMapRWMutex.Lock()
+	common.Logo = "https://cdn.example.com/uucode.png"
+	common.OptionMapRWMutex.Unlock()
+
+	gin.SetMode(gin.TestMode)
+	request := httptest.NewRequest(http.MethodGet, faviconPath, nil)
+	recorder := httptest.NewRecorder()
+	context, _ := gin.CreateTestContext(recorder)
+	context.Request = request
+
+	redirectToConfiguredBrandAsset(context)
+
+	require.Equal(t, http.StatusFound, recorder.Code)
+	assert.Equal(t, "https://cdn.example.com/uucode.png", recorder.Header().Get("Location"))
+	assert.Equal(t, "no-cache, no-store, must-revalidate", recorder.Header().Get("Cache-Control"))
+}
+
+func TestDynamicBrandAssetPathsExcludeStaticDefaults(t *testing.T) {
+	assert.True(t, isDynamicBrandAssetPath(faviconPath))
+	assert.True(t, isDynamicBrandAssetPath(appleTouchIconPath))
+	assert.True(t, isDynamicBrandAssetPath(appleTouchIconPrecomposedPath))
+	assert.False(t, isDynamicBrandAssetPath("/logo.png"))
 }
 
 func TestRenderWebIndexPageRequiresRuntimeBrandMarkers(t *testing.T) {

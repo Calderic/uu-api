@@ -20,14 +20,31 @@ export function applyFaviconToDom(url: string) {
   if (typeof document === 'undefined' || !url) return
   try {
     const next = new URL(url, window.location.href).href
-    const existing =
+    const faviconLinks =
       document.querySelectorAll<HTMLLinkElement>('link[rel~="icon"]')
-    if (existing.length === 1 && existing[0].href === next) return
-    const link = document.createElement('link')
-    link.rel = 'icon'
-    link.href = url
-    existing.forEach((l) => l.remove())
-    document.head.appendChild(link)
+    const faviconLink = faviconLinks[0] ?? document.createElement('link')
+    faviconLink.rel = 'icon'
+    faviconLink.href = next
+    if (!faviconLink.parentNode) {
+      document.head.appendChild(faviconLink)
+    }
+    faviconLinks.forEach((link, index) => {
+      if (index > 0) link.remove()
+    })
+
+    const appleTouchIconLinks = document.querySelectorAll<HTMLLinkElement>(
+      'link[rel="apple-touch-icon"], link[rel="apple-touch-icon-precomposed"]'
+    )
+    if (appleTouchIconLinks.length === 0) {
+      const appleTouchIconLink = document.createElement('link')
+      appleTouchIconLink.rel = 'apple-touch-icon'
+      appleTouchIconLink.href = next
+      document.head.appendChild(appleTouchIconLink)
+    } else {
+      appleTouchIconLinks.forEach((link) => {
+        link.href = next
+      })
+    }
   } catch {
     // Ignore malformed URLs
   }
@@ -37,6 +54,7 @@ export function applySystemBrandingToDom(name: string, logo: string) {
   if (typeof document === 'undefined') return
 
   const normalizedName = name.trim()
+  const normalizedLogo = logo.trim()
   if (normalizedName) {
     document.title = normalizedName
     const titleSelectors = [
@@ -54,5 +72,39 @@ export function applySystemBrandingToDom(name: string, logo: string) {
     })
   }
 
-  applyFaviconToDom(logo)
+  if (normalizedLogo) {
+    try {
+      const absoluteLogoURL = new URL(
+        normalizedLogo,
+        window.location.href
+      ).href
+      const imageMeta = [
+        {
+          selector: 'meta[property="og:image"]',
+          content: absoluteLogoURL,
+        },
+        {
+          selector: 'meta[property="og:image:alt"]',
+          content: normalizedName,
+        },
+        {
+          selector: 'meta[name="twitter:image"]',
+          content: absoluteLogoURL,
+        },
+        {
+          selector: 'meta[name="twitter:image:alt"]',
+          content: normalizedName,
+        },
+      ]
+      imageMeta.forEach((item) => {
+        const meta = document.querySelector<HTMLMetaElement>(item.selector)
+        if (!meta) return
+        meta.setAttribute('content', item.content)
+      })
+    } catch {
+      // Ignore malformed URLs
+    }
+  }
+
+  applyFaviconToDom(normalizedLogo)
 }

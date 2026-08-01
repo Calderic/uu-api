@@ -23,6 +23,12 @@ const (
 	runtimeBrandEnd   = "<!--runtime-brand:end-->"
 )
 
+const (
+	faviconPath                   = "/favicon.ico"
+	appleTouchIconPath            = "/apple-touch-icon.png"
+	appleTouchIconPrecomposedPath = "/apple-touch-icon-precomposed.png"
+)
+
 // WebAssets holds the embedded dashboard frontend assets.
 type WebAssets struct {
 	BuildFS   embed.FS
@@ -50,15 +56,42 @@ func normalizePublicURL(value string) string {
 	return value
 }
 
+func normalizeLogoURL(value string) string {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return "/logo.png"
+	}
+	return value
+}
+
+func resolvePublicAssetURL(siteURL string, assetURL string) string {
+	assetURL = strings.TrimSpace(assetURL)
+	if assetURL == "" {
+		return ""
+	}
+
+	parsedAssetURL, err := url.Parse(assetURL)
+	if err != nil || parsedAssetURL.IsAbs() {
+		return assetURL
+	}
+
+	baseURL := normalizePublicURL(siteURL)
+	if baseURL == "" {
+		return assetURL
+	}
+	parsedBaseURL, err := url.Parse(baseURL + "/")
+	if err != nil {
+		return assetURL
+	}
+	return parsedBaseURL.ResolveReference(parsedAssetURL).String()
+}
+
 func renderWebIndexPage(indexPage []byte, branding webIndexBranding) ([]byte, error) {
 	systemName := strings.TrimSpace(branding.SystemName)
 	if systemName == "" {
 		systemName = "New API"
 	}
-	logo := strings.TrimSpace(branding.Logo)
-	if logo == "" {
-		logo = "/logo.png"
-	}
+	logo := normalizeLogoURL(branding.Logo)
 
 	publicConfigJSON, err := common.Marshal(publicSystemConfig{
 		SystemName: systemName,
@@ -72,10 +105,15 @@ func renderWebIndexPage(indexPage []byte, branding webIndexBranding) ([]byte, er
 	escapedLogo := html.EscapeString(logo)
 	siteURL := normalizePublicURL(branding.SiteURL)
 	canonicalURL := normalizePublicURL(branding.CanonicalURL)
+	shareImageURL := html.EscapeString(resolvePublicAssetURL(siteURL, logo))
 
 	var brandHead strings.Builder
 	brandHead.WriteString(runtimeBrandStart)
 	brandHead.WriteString("\n    <link rel=\"icon\" href=\"")
+	brandHead.WriteString(escapedLogo)
+	brandHead.WriteString("\" />\n    <link rel=\"shortcut icon\" href=\"")
+	brandHead.WriteString(escapedLogo)
+	brandHead.WriteString("\" />\n    <link rel=\"apple-touch-icon\" href=\"")
 	brandHead.WriteString(escapedLogo)
 	brandHead.WriteString("\" />\n    <title>")
 	brandHead.WriteString(escapedName)
@@ -89,7 +127,15 @@ func renderWebIndexPage(indexPage []byte, branding webIndexBranding) ([]byte, er
 	brandHead.WriteString(escapedName)
 	brandHead.WriteString("\" />\n    <meta property=\"og:site_name\" content=\"")
 	brandHead.WriteString(escapedName)
+	brandHead.WriteString("\" />\n    <meta property=\"og:image\" content=\"")
+	brandHead.WriteString(shareImageURL)
+	brandHead.WriteString("\" />\n    <meta property=\"og:image:alt\" content=\"")
+	brandHead.WriteString(escapedName)
 	brandHead.WriteString("\" />\n    <meta name=\"twitter:card\" content=\"summary\" />\n    <meta name=\"twitter:title\" content=\"")
+	brandHead.WriteString(escapedName)
+	brandHead.WriteString("\" />\n    <meta name=\"twitter:image\" content=\"")
+	brandHead.WriteString(shareImageURL)
+	brandHead.WriteString("\" />\n    <meta name=\"twitter:image:alt\" content=\"")
 	brandHead.WriteString(escapedName)
 	brandHead.WriteString("\" />\n")
 	if canonicalURL != "" {
@@ -135,13 +181,43 @@ func renderWebIndexPage(indexPage []byte, branding webIndexBranding) ([]byte, er
 	return rendered, nil
 }
 
+func isDynamicBrandAssetPath(path string) bool {
+	switch path {
+	case faviconPath, appleTouchIconPath, appleTouchIconPrecomposedPath:
+		return true
+	default:
+		return false
+	}
+}
+
+func redirectToConfiguredBrandAsset(c *gin.Context) {
+	common.OptionMapRWMutex.RLock()
+	logo := normalizeLogoURL(common.Logo)
+	common.OptionMapRWMutex.RUnlock()
+
+	c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+	c.Redirect(http.StatusFound, logo)
+}
+
 func SetWebRouter(router *gin.Engine, assets WebAssets) {
 	frontendFS := common.EmbedFolder(assets.BuildFS, "web/dist")
+	staticHandler := static.Serve("/", frontendFS)
 
 	router.Use(gzip.Gzip(gzip.DefaultCompression))
 	router.Use(middleware.GlobalWebRateLimit())
 	router.Use(middleware.Cache())
-	router.Use(static.Serve("/", frontendFS))
+	router.Use(func(c *gin.Context) {
+		if isDynamicBrandAssetPath(c.Request.URL.Path) {
+			return
+		}
+		staticHandler(c)
+	})
+	router.GET(faviconPath, redirectToConfiguredBrandAsset)
+	router.GET(appleTouchIconPath, redirectToConfiguredBrandAsset)
+	router.GET(appleTouchIconPrecomposedPath, redirectToConfiguredBrandAsset)
+	router.HEAD(faviconPath, redirectToConfiguredBrandAsset)
+	router.HEAD(appleTouchIconPath, redirectToConfiguredBrandAsset)
+	router.HEAD(appleTouchIconPrecomposedPath, redirectToConfiguredBrandAsset)
 	router.NoRoute(func(c *gin.Context) {
 		c.Set(middleware.RouteTagKey, "web")
 		if strings.HasPrefix(c.Request.RequestURI, "/v1") || strings.HasPrefix(c.Request.RequestURI, "/api") || strings.HasPrefix(c.Request.RequestURI, "/assets") {
