@@ -196,7 +196,7 @@ export const ModelCard = memo(function ModelCard(props: ModelCardProps) {
   return (
     <div
       className={cn(
-        'group relative flex flex-col rounded-xl border p-3 transition-colors sm:p-5',
+        'group relative flex flex-col rounded-xl border p-4 transition-colors sm:p-5',
         'hover:bg-muted/20'
       )}
     >
@@ -211,7 +211,10 @@ export const ModelCard = memo(function ModelCard(props: ModelCardProps) {
             )}
           </div>
           <div className='min-w-0'>
-            <h3 className='text-foreground truncate font-mono text-[15px] leading-tight font-bold'>
+            <h3
+              title={props.model.model_name}
+              className='text-foreground line-clamp-2 font-mono text-[15px] leading-tight font-bold break-words'
+            >
               {props.model.model_name}
             </h3>
             <div className='mt-0.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-sm sm:mt-1 sm:gap-x-3'>

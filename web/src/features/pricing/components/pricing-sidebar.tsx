@@ -16,7 +16,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { ChevronDown, RotateCcw } from 'lucide-react'
+import { Check, ChevronDown, RotateCcw } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -45,6 +45,7 @@ type FilterOption = {
   label: string
   count?: number
   suffix?: string
+  suffixLabel?: string
   icon?: ReactNode
 }
 
@@ -53,6 +54,8 @@ type FilterSectionProps = {
   value: string
   options: FilterOption[]
   onChange: (value: string) => void
+  defaultOpen?: boolean
+  layout?: 'chips' | 'list'
 }
 
 export interface PricingSidebarProps {
@@ -95,58 +98,85 @@ function FilterChip(props: {
   option: FilterOption
   active: boolean
   onClick: () => void
+  fullWidth?: boolean
 }) {
   return (
     <button
       type='button'
       onClick={props.onClick}
+      aria-pressed={props.active}
       className={cn(
-        'group inline-flex max-w-full items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium transition-all',
+        'group inline-flex min-w-0 max-w-full items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium transition-all',
+        props.fullWidth && 'w-full justify-between rounded-lg px-3 py-2',
         props.active
-          ? 'border-foreground/30 bg-foreground/5 text-foreground shadow-sm'
+          ? 'border-primary/50 bg-primary/10 text-foreground shadow-sm ring-1 ring-primary/20'
           : 'border-border/70 bg-background text-muted-foreground hover:border-border hover:bg-muted/50 hover:text-foreground'
       )}
       title={props.option.label}
     >
-      {props.option.icon && (
-        <span className='shrink-0'>{props.option.icon}</span>
-      )}
-      <span className='truncate'>{props.option.label}</span>
-      {(props.option.suffix || props.option.count != null) && (
-        <span
-          className={cn(
-            'rounded-md px-1.5 py-0.5 text-[12px]',
-            props.active
-              ? 'bg-background text-foreground'
-              : 'bg-muted text-muted-foreground'
-          )}
-        >
-          {props.option.suffix ?? props.option.count}
-        </span>
-      )}
+      <span className='flex min-w-0 items-center gap-1.5'>
+        {props.option.icon && (
+          <span className='shrink-0'>{props.option.icon}</span>
+        )}
+        <span className='truncate'>{props.option.label}</span>
+      </span>
+      <span className='flex shrink-0 items-center gap-1'>
+        {(props.option.suffix || props.option.count != null) && (
+          <Badge
+            variant={props.active ? 'outline' : 'secondary'}
+            className='h-5 px-1.5 text-[12px] tabular-nums'
+          >
+            <span className='sr-only'>
+              {props.option.suffixLabel ? `${props.option.suffixLabel}: ` : ''}
+            </span>
+            {props.option.suffix ?? props.option.count}
+          </Badge>
+        )}
+        {props.active && <Check className='size-3.5' aria-hidden='true' />}
+      </span>
     </button>
   )
 }
 
 function FilterSection(props: FilterSectionProps) {
+  const selectedOption = props.options.find(
+    (option) => option.value === props.value
+  )
+  const hasSelection = props.value !== props.options[0]?.value
+
   return (
     <Collapsible
-      defaultOpen
+      defaultOpen={props.defaultOpen ?? false}
       className='border-border/70 border-b pb-3 last:border-b-0'
     >
       <CollapsibleTrigger className='group flex w-full items-center justify-between py-2.5 text-left'>
-        <span className='text-foreground text-sm font-semibold'>
-          {props.title}
+        <span className='flex min-w-0 items-center gap-2'>
+          <span className='text-foreground text-sm font-semibold'>
+            {props.title}
+          </span>
+          {hasSelection && selectedOption && (
+            <Badge
+              variant='outline'
+              className='text-muted-foreground max-w-[8rem] truncate px-1.5 py-0 text-[11px] font-normal'
+            >
+              {selectedOption.label}
+            </Badge>
+          )}
         </span>
         <ChevronDown className='text-muted-foreground size-4 transition-transform group-data-[panel-open]:rotate-180' />
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className='flex flex-wrap gap-1.5'>
+        <div
+          className={cn(
+            props.layout === 'list' ? 'grid gap-1.5' : 'flex flex-wrap gap-1.5'
+          )}
+        >
           {props.options.map((option) => (
             <FilterChip
               key={option.value}
               option={option}
               active={props.value === option.value}
+              fullWidth={props.layout === 'list'}
               onClick={() => props.onChange(option.value)}
             />
           ))}
@@ -189,6 +219,7 @@ export function PricingSidebar(props: PricingSidebarProps) {
       value: group,
       label: group,
       suffix: formatGroupRatio(props.groupRatios?.[group]),
+      suffixLabel: t('Ratio'),
     })),
   ]
 
@@ -279,6 +310,8 @@ export function PricingSidebar(props: PricingSidebarProps) {
           value={props.groupFilter}
           options={groupOptions}
           onChange={props.onGroupChange}
+          defaultOpen
+          layout='list'
         />
         <FilterSection
           title={t('All Vendors')}

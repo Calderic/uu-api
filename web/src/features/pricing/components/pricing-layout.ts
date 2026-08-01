@@ -21,4 +21,5 @@ export const pricingLayoutClasses = {
   toolbar: 'flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between',
   toolbarSearch: 'min-w-0 flex-1 lg:max-w-xl',
   toolbarActions: 'flex shrink-0 flex-wrap items-center gap-2',
+  modelGrid: 'grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3',
 } as const

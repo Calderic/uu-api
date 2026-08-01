@@ -38,4 +38,13 @@ describe('pricing page layout', () => {
     assert.ok(toolbarClasses.includes('flex-col'))
     assert.ok(toolbarClasses.includes('gap-3'))
   })
+
+  test('uses two columns before expanding to three on wide screens', () => {
+    const modelGridClasses = pricingLayoutClasses.modelGrid.split(' ')
+
+    assert.ok(modelGridClasses.includes('grid-cols-1'))
+    assert.ok(modelGridClasses.includes('md:grid-cols-2'))
+    assert.ok(modelGridClasses.includes('2xl:grid-cols-3'))
+    assert.ok(!modelGridClasses.includes('lg:grid-cols-3'))
+  })
 })
