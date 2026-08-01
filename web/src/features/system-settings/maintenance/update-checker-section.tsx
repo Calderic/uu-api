@@ -22,8 +22,8 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { Dialog } from '@/components/dialog'
+import { LazyMarkdown } from '@/components/lazy-rich-content'
 import { Button } from '@/components/ui/button'
-import { Markdown } from '@/components/ui/markdown'
 import { formatTimestamp, formatTimestampToDate } from '@/lib/format'
 
 import { SettingsSection } from '../components/settings-section'
@@ -176,7 +176,7 @@ export function UpdateCheckerSection({
       >
         <div className='space-y-4'>
           {release?.body ? (
-            <Markdown>{release.body}</Markdown>
+            <LazyMarkdown>{release.body}</LazyMarkdown>
           ) : (
             <p className='text-muted-foreground text-sm'>
               {t('No release notes provided.')}

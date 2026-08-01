@@ -23,7 +23,7 @@ import { cn } from '@/lib/utils'
 
 export type HtmlContentVariant = 'inline' | 'isolated'
 
-interface HtmlContentProps {
+export interface HtmlContentProps {
   content: string
   className?: string
   variant?: HtmlContentVariant

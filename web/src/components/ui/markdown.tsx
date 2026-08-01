@@ -25,7 +25,7 @@ import { useMemo } from 'react'
 
 import { cn } from '@/lib/utils'
 
-interface MarkdownProps {
+export interface MarkdownProps {
   breaks?: boolean
   children: string
   className?: string
