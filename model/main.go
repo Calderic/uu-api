@@ -312,6 +312,9 @@ func migrateDB() error {
 	if err != nil {
 		return err
 	}
+	if err := MigrateDocumentation(DB); err != nil {
+		return fmt.Errorf("failed to migrate documentation: %v", err)
+	}
 	if err := InitializeUserAuthVersions(); err != nil {
 		return err
 	}
@@ -395,6 +398,9 @@ func migrateDBFast() error {
 	}
 	if err := MigrateBlog(DB); err != nil {
 		return fmt.Errorf("failed to migrate blog: %v", err)
+	}
+	if err := MigrateDocumentation(DB); err != nil {
+		return fmt.Errorf("failed to migrate documentation: %v", err)
 	}
 	if err := InitializeUserAuthVersions(); err != nil {
 		return err

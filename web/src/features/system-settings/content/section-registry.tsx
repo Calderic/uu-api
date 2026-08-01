@@ -35,6 +35,11 @@ const BlogSection = lazy(() =>
     default: module.BlogSection,
   }))
 )
+const DocumentationSection = lazy(() =>
+  import('./documentation/documentation-section').then((module) => ({
+    default: module.DocumentationSection,
+  }))
+)
 
 /**
  * Validate and coerce DataExportDefaultTime to a safe value
@@ -85,6 +90,21 @@ const CONTENT_SECTIONS = [
         }
       >
         <BlogSection />
+      </Suspense>
+    ),
+  },
+  {
+    id: 'documentation',
+    titleKey: 'Documentation',
+    build: () => (
+      <Suspense
+        fallback={
+          <div className='flex justify-center py-8' aria-busy='true'>
+            <Spinner />
+          </div>
+        }
+      >
+        <DocumentationSection />
       </Suspense>
     ),
   },

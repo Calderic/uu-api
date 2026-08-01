@@ -17,6 +17,7 @@ func SetRouter(router *gin.Engine, assets WebAssets) {
 	SetRelayRouter(router)
 	SetVideoRouter(router)
 	SetBlogWebRouter(router)
+	SetDocumentationWebRouter(router)
 	frontendBaseUrl := os.Getenv("FRONTEND_BASE_URL")
 	if common.IsMasterNode && frontendBaseUrl != "" {
 		frontendBaseUrl = ""

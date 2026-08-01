@@ -58,9 +58,8 @@ export function Hero(props: HeroProps) {
   const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.94])
   const exitShade = useTransform(scrollYProgress, [0.72, 1], [0, 0.32])
 
-  const docsUrl =
-    (status?.docs_link as string | undefined) || 'https://docs.newapi.pro'
-  const docsRender = docsUrl.startsWith('http') ? (
+  const docsUrl = (status?.docs_link as string | undefined) || '/docs'
+  const docsRender = /^https?:\/\//i.test(docsUrl) ? (
     <a href={docsUrl} target='_blank' rel='noopener noreferrer' />
   ) : (
     <Link to={docsUrl} />

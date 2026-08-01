@@ -20,7 +20,13 @@ import DOMPurify from 'dompurify'
 import * as katex from 'katex'
 
 import 'katex/dist/katex.min.css'
-import { Marked, Renderer, type MarkedExtension, type Tokens } from 'marked'
+import {
+  Marked,
+  Renderer,
+  type MarkedExtension,
+  type RendererThis,
+  type Tokens,
+} from 'marked'
 import { useMemo } from 'react'
 
 import { cn } from '@/lib/utils'
@@ -604,6 +610,31 @@ function renderSequenceDiagram(source: string): string {
 
 const markdownRenderer = new Renderer()
 const renderDefaultCode = markdownRenderer.code.bind(markdownRenderer)
+const markdownHeadingIds = new Map<string, number>()
+
+function slugifyMarkdownHeading(value: string): string {
+  const normalized = value
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s-]/gu, '')
+    .trim()
+    .replace(/\s+/g, '-')
+  return normalized || 'section'
+}
+
+markdownRenderer.heading = function (
+  this: RendererThis,
+  token: Tokens.Heading
+): string {
+  const baseId = slugifyMarkdownHeading(token.text)
+  const count = markdownHeadingIds.get(baseId) ?? 0
+  markdownHeadingIds.set(baseId, count + 1)
+  const id = count === 0 ? baseId : `${baseId}-${count + 1}`
+  const html = Renderer.prototype.heading.call(this, token)
+  return html.replace(
+    `<h${token.depth}>`,
+    `<h${token.depth} id="${escapeHtml(id)}">`
+  )
+}
 
 markdownRenderer.code = (token: Tokens.Code): string => {
   const language = token.lang?.toLowerCase()
@@ -735,6 +766,7 @@ function addExternalLinkAttributes(html: string): string {
 }
 
 function renderMarkdown(markdown: string, breaks = false): string {
+  markdownHeadingIds.clear()
   const parsedHtml = markdownParser.parse(markdown, {
     ...markdownOptions,
     breaks,
