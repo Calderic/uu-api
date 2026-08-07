@@ -19,7 +19,11 @@ For commercial licensing, please contact support@quantumnous.com
 import assert from 'node:assert/strict'
 import { describe, test } from 'node:test'
 
-import { buildGoogleOAuthUrl } from '../oauth'
+import {
+  buildGoogleOAuthUrl,
+  decodeOAuthFlowState,
+  encodeOAuthFlowState,
+} from '../oauth'
 
 describe('Google OAuth URL', () => {
   test('includes the exact callback, identity scopes, and CSRF state', (t) => {
@@ -48,5 +52,50 @@ describe('Google OAuth URL', () => {
     assert.equal(url.searchParams.get('response_type'), 'code')
     assert.equal(url.searchParams.get('scope'), 'openid email profile')
     assert.equal(url.searchParams.get('state'), 'state-token')
+  })
+
+  test('uses the configured public server address for the callback', (t) => {
+    const originalWindow = Object.getOwnPropertyDescriptor(globalThis, 'window')
+    t.after(() => {
+      if (originalWindow) {
+        Object.defineProperty(globalThis, 'window', originalWindow)
+        return
+      }
+      Reflect.deleteProperty(globalThis, 'window')
+    })
+    Object.defineProperty(globalThis, 'window', {
+      configurable: true,
+      value: { location: { origin: 'https://internal.example.com' } },
+    })
+
+    const url = new URL(
+      buildGoogleOAuthUrl(
+        'google-client',
+        'state-token',
+        'https://public.example.com/'
+      )
+    )
+
+    assert.equal(
+      url.searchParams.get('redirect_uri'),
+      'https://public.example.com/oauth/google'
+    )
+  })
+
+  test('encodes and decodes the flow intent for popup callbacks', () => {
+    const encoded = encodeOAuthFlowState('state-token', 'bind')
+
+    assert.equal(encoded, 'state-token.bind')
+    assert.deepEqual(decodeOAuthFlowState(encoded), {
+      state: 'state-token',
+      intent: 'bind',
+    })
+  })
+
+  test('keeps legacy OAuth states usable without an encoded intent', () => {
+    assert.deepEqual(decodeOAuthFlowState('legacy-state'), {
+      state: 'legacy-state',
+      intent: null,
+    })
   })
 })

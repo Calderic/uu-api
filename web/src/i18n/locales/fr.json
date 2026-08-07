@@ -3135,6 +3135,7 @@
     "OAuth Client Secret": "Secret client OAuth",
     "OAuth failed": "Échec de l'OAuth",
     "OAuth Integrations": "Intégrations OAuth",
+    "OAuth login timed out. Please try again.": "La connexion OAuth a expiré. Veuillez réessayer.",
     "OAuth pop-up was blocked": "La fenêtre contextuelle OAuth a été bloquée",
     "Object Prune Rules": "Règles de nettoyage d'objets",
     "Observability": "Observabilité",

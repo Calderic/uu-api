@@ -3135,6 +3135,7 @@
     "OAuth Client Secret": "Bí mật OAuth Client",
     "OAuth failed": "OAuth thất bại",
     "OAuth Integrations": "Tích hợp OAuth",
+    "OAuth login timed out. Please try again.": "Đăng nhập OAuth đã hết thời gian chờ. Vui lòng thử lại.",
     "OAuth pop-up was blocked": "Cửa sổ bật lên OAuth đã bị chặn",
     "Object Prune Rules": "Quy tắc dọn dẹp đối tượng",
     "Observability": "Khả năng quan sát",

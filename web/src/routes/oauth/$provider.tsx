@@ -24,13 +24,14 @@ import {
 } from '@tanstack/react-router'
 import type { AxiosRequestConfig } from 'axios'
 import i18next from 'i18next'
-import { useEffect } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { toast } from 'sonner'
 
 import { OAuthCallbackScreen } from '@/features/auth/components/oauth-callback-screen'
 import {
   OAUTH_BIND_CALLBACK_MESSAGE,
   OAUTH_BIND_RESULT_MESSAGE,
+  OAUTH_REQUEST_TIMEOUT_MS,
 } from '@/features/auth/constants'
 import { sanitizeAuthRedirect } from '@/features/auth/lib/auth-redirect'
 import {
@@ -39,10 +40,13 @@ import {
   startOAuthBindResponseDeadline,
 } from '@/features/auth/lib/oauth-bind-window'
 import { api, applyAuthBundle, isAuthBundle } from '@/lib/api'
+import { decodeOAuthFlowState } from '@/lib/oauth'
 import { getServerErrorMessageKey } from '@/lib/server-error-message'
 
 type OAuthRequestConfig = AxiosRequestConfig & {
   skipBusinessError?: boolean
+  skipAuthRefresh?: boolean
+  skipErrorHandler?: boolean
 }
 
 interface OAuthBindingResult {
@@ -68,14 +72,22 @@ function OAuthCallback() {
     flow_token?: string
     error_code?: string
   }
+  const callbackStartedRef = useRef(false)
+  const callbackFlow = useMemo(
+    () => decodeOAuthFlowState(search.state ?? ''),
+    [search.state]
+  )
   const mode: 'login' | 'bind' =
-    typeof window !== 'undefined' && window.opener ? 'bind' : 'login'
+    callbackFlow.intent ??
+    (typeof window !== 'undefined' && window.opener ? 'bind' : 'login')
 
   useEffect(() => {
     if (typeof window === 'undefined') return
+    if (callbackStartedRef.current) return
+    callbackStartedRef.current = true
 
     const code = search.code ?? ''
-    const state = search.state ?? ''
+    const state = callbackFlow.state
     const telegramCallback =
       provider === 'telegram'
         ? parseTelegramBindCallback({
@@ -171,6 +183,14 @@ function OAuthCallback() {
       return
     }
 
+    let isActive = true
+    let requestTimedOut = false
+    const requestController = new AbortController()
+    const timeoutId = window.setTimeout(() => {
+      requestTimedOut = true
+      requestController.abort()
+    }, OAUTH_REQUEST_TIMEOUT_MS)
+
     void (async () => {
       try {
         const config: OAuthRequestConfig = {
@@ -181,8 +201,13 @@ function OAuthCallback() {
             error_description: search.error_description,
           },
           skipBusinessError: true,
+          skipAuthRefresh: true,
+          skipErrorHandler: true,
+          signal: requestController.signal,
+          timeout: OAUTH_REQUEST_TIMEOUT_MS,
         }
         const response = await api.get(`/api/oauth/${provider}`, config)
+        if (!isActive) return
         if (response.data?.success && isAuthBundle(response.data?.data)) {
           applyAuthBundle(response.data.data)
           safeNavigate(search.redirect)
@@ -196,22 +221,40 @@ function OAuthCallback() {
             : response.data?.message || i18next.t('OAuth failed')
         )
       } catch (error: unknown) {
-        const messageKey = getServerErrorMessageKey(error)
-        const responseMessage = (
-          error as { response?: { data?: { message?: string } } }
-        ).response?.data?.message
-        if (!messageKey) {
-          toast.error(
-            responseMessage ||
-              (error instanceof Error
-                ? error.message
-                : i18next.t('OAuth failed'))
-          )
+        if (!isActive) return
+        const errorCode = (error as { code?: unknown } | null)?.code
+        if (
+          requestTimedOut ||
+          errorCode === 'ECONNABORTED' ||
+          errorCode === 'ETIMEDOUT'
+        ) {
+          toast.error(i18next.t('OAuth login timed out. Please try again.'))
+        } else {
+          const messageKey = getServerErrorMessageKey(error)
+          const responseMessage = (
+            error as { response?: { data?: { message?: string } } }
+          ).response?.data?.message
+          if (!messageKey) {
+            toast.error(
+              responseMessage ||
+                (error instanceof Error
+                  ? error.message
+                  : i18next.t('OAuth failed'))
+            )
+          }
         }
+      } finally {
+        window.clearTimeout(timeoutId)
       }
-      safeNavigate('/sign-in', '/sign-in')
+      if (isActive) safeNavigate('/sign-in', '/sign-in')
     })()
+
+    return () => {
+      isActive = false
+      window.clearTimeout(timeoutId)
+    }
   }, [
+    callbackFlow,
     mode,
     navigate,
     provider,

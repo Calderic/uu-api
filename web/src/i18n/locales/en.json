@@ -3135,6 +3135,7 @@
     "OAuth Client Secret": "OAuth Client Secret",
     "OAuth failed": "OAuth failed",
     "OAuth Integrations": "OAuth Integrations",
+    "OAuth login timed out. Please try again.": "OAuth login timed out. Please try again.",
     "OAuth pop-up was blocked": "OAuth pop-up was blocked",
     "Object Prune Rules": "Object Prune Rules",
     "Observability": "Observability",

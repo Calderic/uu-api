@@ -21,6 +21,7 @@ import axios from 'axios'
 import { api, refreshAuthentication, type RefreshOutcome } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
 
+import { OAUTH_REQUEST_TIMEOUT_MS } from './constants'
 import { getAffiliateCode } from './lib/storage'
 import type { TelegramAuthorization } from './lib/telegram-login'
 import type {
@@ -105,6 +106,7 @@ export async function logout(): Promise<ApiResponse> {
         headers: sid ? { 'X-Auth-Session': sid } : undefined,
         skipAuthRefresh: true,
         skipErrorHandler: true,
+        timeout: OAUTH_REQUEST_TIMEOUT_MS,
       })
       return res.data
     },
@@ -146,12 +148,19 @@ export async function createOAuthFlow(
   const res = await api.post(
     '/api/oauth/state',
     { provider, intent, aff: aff || undefined },
-    { skipAuthRefresh: intent === 'login' }
+    {
+      skipAuthRefresh: intent === 'login',
+      skipErrorHandler: true,
+      timeout: OAUTH_REQUEST_TIMEOUT_MS,
+    }
   )
   if (res.data?.success) {
-    if (typeof res.data.data === 'string') return res.data.data
-    if (typeof res.data.data?.flow_token === 'string') {
-      return res.data.data.flow_token
+    const flowToken =
+      typeof res.data.data === 'string'
+        ? res.data.data
+        : res.data.data?.flow_token
+    if (typeof flowToken === 'string') {
+      return flowToken
     }
   }
   throw new Error(res.data?.message || 'Failed to initialize OAuth')

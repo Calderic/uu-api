@@ -3135,6 +3135,7 @@
     "OAuth Client Secret": "OAuth Client Secret",
     "OAuth failed": "OAuth не удался",
     "OAuth Integrations": "Интеграции OAuth",
+    "OAuth login timed out. Please try again.": "Время ожидания входа через OAuth истекло. Повторите попытку.",
     "OAuth pop-up was blocked": "Всплывающее окно OAuth заблокировано",
     "Object Prune Rules": "Правила очистки объектов",
     "Observability": "Наблюдаемость",

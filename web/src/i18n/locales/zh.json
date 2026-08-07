@@ -3135,6 +3135,7 @@
     "OAuth Client Secret": "OAuth 客户端密钥",
     "OAuth failed": "OAuth 失败",
     "OAuth Integrations": "OAuth 集成",
+    "OAuth login timed out. Please try again.": "OAuth 登录超时，请重试。",
     "OAuth pop-up was blocked": "OAuth 弹窗被浏览器拦截",
     "Object Prune Rules": "对象清理规则",
     "Observability": "可观测性",

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -17,7 +18,10 @@ import (
 	"gorm.io/gorm"
 )
 
-const oauthAuthFlowTTL = 10 * time.Minute
+const (
+	oauthAuthFlowTTL    = 10 * time.Minute
+	oauthRequestTimeout = 30 * time.Second
+)
 
 type oauthStateRequest struct {
 	Provider string `json:"provider"`
@@ -93,6 +97,10 @@ func GenerateOAuthCode(c *gin.Context) {
 
 // HandleOAuth handles OAuth callback for all standard OAuth providers
 func HandleOAuth(c *gin.Context) {
+	requestContext, cancel := context.WithTimeout(c.Request.Context(), oauthRequestTimeout)
+	defer cancel()
+	c.Request = c.Request.WithContext(requestContext)
+
 	providerName := c.Param("provider")
 	provider := oauth.GetProvider(providerName)
 	if provider == nil {

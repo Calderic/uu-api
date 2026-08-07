@@ -29,6 +29,8 @@ import {
   buildDiscordOAuthUrl,
   buildOIDCOAuthUrl,
   buildLinuxDOOAuthUrl,
+  buildOAuthRedirectUri,
+  encodeOAuthFlowState,
 } from '../lib/oauth'
 import { pickTelegramAuthorization } from '../lib/telegram-login'
 import type { SystemStatus, CustomOAuthProviderInfo } from '../types'
@@ -92,7 +94,10 @@ export function useOAuthLogin(
       await resetSession()
       const state = await createOAuthFlow('github', 'login')
 
-      const url = buildGitHubOAuthUrl(status.github_client_id, state)
+      const url = buildGitHubOAuthUrl(
+        status.github_client_id,
+        encodeOAuthFlowState(state, 'login')
+      )
       window.open(url, '_self')
     } catch {
       toast.error(t('Failed to start GitHub login'))
@@ -113,7 +118,11 @@ export function useOAuthLogin(
       await resetSession()
       const state = await createOAuthFlow('discord', 'login')
 
-      const url = buildDiscordOAuthUrl(status.discord_client_id, state)
+      const url = buildDiscordOAuthUrl(
+        status.discord_client_id,
+        encodeOAuthFlowState(state, 'login'),
+        status.server_address
+      )
       window.open(url, '_self')
     } catch {
       toast.error(t('Failed to start Discord login'))
@@ -130,7 +139,11 @@ export function useOAuthLogin(
       await resetSession()
       const state = await createOAuthFlow('google', 'login')
 
-      const url = buildGoogleOAuthUrl(status.google_client_id, state)
+      const url = buildGoogleOAuthUrl(
+        status.google_client_id,
+        encodeOAuthFlowState(state, 'login'),
+        status.server_address
+      )
       window.open(url, '_self')
     } catch {
       toast.error(t('Failed to start Google login'))
@@ -150,7 +163,8 @@ export function useOAuthLogin(
       const url = buildOIDCOAuthUrl(
         status.oidc_authorization_endpoint,
         status.oidc_client_id,
-        state
+        encodeOAuthFlowState(state, 'login'),
+        status.server_address
       )
       window.open(url, '_self')
     } catch {
@@ -229,12 +243,15 @@ export function useOAuthLogin(
       await resetSession()
       const state = await createOAuthFlow(provider.slug, 'login')
 
-      const redirectUri = `${window.location.origin}/oauth/${provider.slug}`
+      const redirectUri = buildOAuthRedirectUri(
+        provider.slug,
+        status?.server_address
+      )
       const url = new URL(provider.authorization_endpoint)
       url.searchParams.set('client_id', provider.client_id)
       url.searchParams.set('redirect_uri', redirectUri)
       url.searchParams.set('response_type', 'code')
-      url.searchParams.set('state', state)
+      url.searchParams.set('state', encodeOAuthFlowState(state, 'login'))
       if (provider.scopes) {
         url.searchParams.set('scope', provider.scopes)
       }

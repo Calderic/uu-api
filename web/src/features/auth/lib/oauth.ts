@@ -24,6 +24,8 @@ export {
   buildDiscordOAuthUrl,
   buildOIDCOAuthUrl,
   buildLinuxDOOAuthUrl,
+  buildOAuthRedirectUri,
+  encodeOAuthFlowState,
 } from '@/lib/oauth'
 
 // ============================================================================

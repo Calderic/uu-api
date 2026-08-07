@@ -43,6 +43,8 @@ import {
   buildGoogleOAuthUrl,
   buildLinuxDOOAuthUrl,
   buildOIDCOAuthUrl,
+  buildOAuthRedirectUri,
+  encodeOAuthFlowState,
 } from '@/lib/oauth'
 
 import {
@@ -190,12 +192,15 @@ export function AccountBindingsTab({
 
   const handleBindCustomOAuth = async (provider: CustomOAuthProviderInfo) => {
     await startOAuthBinding(provider.slug, (state) => {
-      const redirectUri = `${window.location.origin}/oauth/${provider.slug}`
+      const redirectUri = buildOAuthRedirectUri(
+        provider.slug,
+        status?.server_address
+      )
       const url = new URL(provider.authorization_endpoint)
       url.searchParams.set('client_id', provider.client_id)
       url.searchParams.set('redirect_uri', redirectUri)
       url.searchParams.set('response_type', 'code')
-      url.searchParams.set('state', state)
+      url.searchParams.set('state', encodeOAuthFlowState(state, 'bind'))
       if (provider.scopes) url.searchParams.set('scope', provider.scopes)
       return url.toString()
     })
@@ -318,7 +323,7 @@ export function AccountBindingsTab({
           const clientId = status?.github_client_id
           if (clientId) {
             void startOAuthBinding('github', (state) =>
-              buildGitHubOAuthUrl(clientId, state)
+              buildGitHubOAuthUrl(clientId, encodeOAuthFlowState(state, 'bind'))
             )
           }
         },
@@ -338,7 +343,11 @@ export function AccountBindingsTab({
           const clientId = status?.discord_client_id
           if (clientId) {
             void startOAuthBinding('discord', (state) =>
-              buildDiscordOAuthUrl(clientId, state)
+              buildDiscordOAuthUrl(
+                clientId,
+                encodeOAuthFlowState(state, 'bind'),
+                status?.server_address
+              )
             )
           }
         },
@@ -354,7 +363,11 @@ export function AccountBindingsTab({
           const clientId = status?.google_client_id
           if (clientId) {
             void startOAuthBinding('google', (state) =>
-              buildGoogleOAuthUrl(clientId, state)
+              buildGoogleOAuthUrl(
+                clientId,
+                encodeOAuthFlowState(state, 'bind'),
+                status?.server_address
+              )
             )
           }
         },
@@ -375,7 +388,12 @@ export function AccountBindingsTab({
           const clientId = status?.oidc_client_id
           if (authorizationEndpoint && clientId) {
             void startOAuthBinding('oidc', (state) =>
-              buildOIDCOAuthUrl(authorizationEndpoint, clientId, state)
+              buildOIDCOAuthUrl(
+                authorizationEndpoint,
+                clientId,
+                encodeOAuthFlowState(state, 'bind'),
+                status?.server_address
+              )
             )
           }
         },

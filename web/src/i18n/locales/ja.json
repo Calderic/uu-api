@@ -3135,6 +3135,7 @@
     "OAuth Client Secret": "OAuthクライアントシークレット",
     "OAuth failed": "OAuth に失敗しました",
     "OAuth Integrations": "OAuth連携",
+    "OAuth login timed out. Please try again.": "OAuth ログインがタイムアウトしました。もう一度お試しください。",
     "OAuth pop-up was blocked": "OAuth ポップアップがブロックされました",
     "Object Prune Rules": "オブジェクト削除ルール",
     "Observability": "可観測性",
